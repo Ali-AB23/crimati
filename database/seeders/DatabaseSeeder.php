@@ -21,5 +21,16 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        $this->call([
+            OrgUnitSeeder::class,               // indépendant
+            LocationSeeder::class,               // indépendant
+            AssetCategoryAndTypeSeeder::class,   // indépendant
+            // Plus tard, tu ajouteras ici les seeders dépendants :
+            // EmployeeSeeder::class,
+            // AssetSeeder::class,
+            // TicketSeeder::class,
+        ]);
+        
     }
 }
