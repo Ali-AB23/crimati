@@ -15,21 +15,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
-        $this->call([
-            OrgUnitSeeder::class,               // indépendant
-            LocationSeeder::class,               // indépendant
-            AssetCategoryAndTypeSeeder::class,   // indépendant
-            // Plus tard, tu ajouteras ici les seeders dépendants :
-            // EmployeeSeeder::class,
-            // AssetSeeder::class,
-            // TicketSeeder::class,
+         $this->call([
+            OrgUnitSeeder::class,               // 1. L'organigramme
+            LocationSeeder::class,              // 2. Les lieux
+            AssetCategoryAndTypeSeeder::class,  // 3. Le catalogue matériel
+            UserSeeder::class,                  // 4. Les utilisateurs (a besoin des lieux et org_units)
         ]);
         
     }
