@@ -23,9 +23,12 @@ class StoreAssetRequest extends FormRequest
      */
     public function rules(): array
     {
+
+        $asset = $this->route('asset');
+        $assetId = $asset ? $asset->id : null;
         // 1. On valide d'abord les champs standards de la table `assets`
         $rules = [
-            'inventory_code'      =>['required', 'string', 'unique:assets,inventory_code'],
+            'inventory_code'      =>['required', 'string', 'unique:assets,inventory_code,'. $assetId],
             'asset_type_id'       =>['required', 'exists:asset_types,id'],
             'brand'               =>['nullable', 'string', 'max:100'],
             'model'               =>['nullable', 'string', 'max:100'],

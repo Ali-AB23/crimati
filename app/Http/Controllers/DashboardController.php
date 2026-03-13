@@ -12,12 +12,10 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-
-public function index()
-{
-    $user = Auth::user();
+    public function index()
+    {
+        $user = Auth::user();
         $employeeId = $user->employee ? $user->employee->id : null;
-
 
         // Variables pour stocker nos statistiques
         $stats =[
@@ -27,8 +25,8 @@ public function index()
             'late_tickets' => 0,
         ];
 
-         // 1. LOGIQUE POUR ADMIN & INVENTORISTE (Vue Globale)
-        if (in_array($user->role->value, [UserRole::ADMIN_IT->value, UserRole::INVENTORISTE->value])) {
+        // 1. LOGIQUE POUR ADMIN & INVENTORISTE (Vue Globale)
+        if (in_array($user->role->value,[UserRole::ADMIN_IT->value, UserRole::INVENTORISTE->value])) {
             
             $stats['total_assets'] = Asset::count();
             
@@ -43,39 +41,57 @@ public function index()
                 TicketStatus::EN_COURS->value
             ])->count();
 
-            // Tickets non fermés et dont la date limite est dépassée
             $stats['late_tickets'] = Ticket::whereNotIn('status',[
                 TicketStatus::RESOLU->value, 
                 TicketStatus::FERME->value, 
                 TicketStatus::ANNULE->value
             ])->where('due_at', '<', now())->count();
 
+            // --- NOUVEAU : Récupération des données pour les tableaux (Global) ---
+            $recentTickets = Ticket::with(['asset', 'assignedTo.employee'])
+                                   ->orderBy('created_at', 'desc')
+                                   ->limit(5)->get();
+
+            $attentionAssets = Asset::with(['type.category', 'currentLocation', 'currentEmployee'])
+                                    ->whereIn('status',[AssetStatus::EN_PANNE->value, AssetStatus::EN_REPARATION->value])
+                                    ->limit(5)->get();
+
         } 
         // 2. LOGIQUE POUR L'EMPLOYÉ (Vue Restreinte à ses données)
         else {
             if ($employeeId) {
-                // Matériel qui lui est actuellement affecté
                 $stats['total_assets'] = Asset::where('current_employee_id', $employeeId)->count();
                 
                 $stats['broken_assets'] = Asset::where('current_employee_id', $employeeId)
                     ->whereIn('status',[AssetStatus::EN_PANNE->value, AssetStatus::EN_REPARATION->value])
                     ->count();
 
-                // Ses tickets à lui
                 $stats['active_tickets'] = Ticket::where('requester_employee_id', $employeeId)
                     ->whereIn('status',[TicketStatus::OUVERT->value, TicketStatus::ASSIGNE->value, TicketStatus::EN_COURS->value])
                     ->count();
 
-                // L'employé n'a pas forcément besoin de voir la notion de "retard" pour ses propres tickets, 
-                // mais on peut lui afficher ceux qui traînent.
                 $stats['late_tickets'] = Ticket::where('requester_employee_id', $employeeId)
                     ->whereNotIn('status',[TicketStatus::RESOLU->value, TicketStatus::FERME->value, TicketStatus::ANNULE->value])
                     ->where('due_at', '<', now())->count();
+
+                // --- NOUVEAU : Récupération des données pour les tableaux (Restreint à l'employé) ---
+                $recentTickets = Ticket::with(['asset', 'assignedTo.employee'])
+                                       ->where('requester_employee_id', $employeeId)
+                                       ->orderBy('created_at', 'desc')
+                                       ->limit(5)->get();
+
+                $attentionAssets = Asset::with(['type.category', 'currentLocation', 'currentEmployee'])
+                                        ->where('current_employee_id', $employeeId)
+                                        ->whereIn('status',[AssetStatus::EN_PANNE->value, AssetStatus::EN_REPARATION->value])
+                                        ->limit(5)->get();
+            } else {
+                // Sécurité si l'employé n'a pas d'ID
+                $recentTickets = collect();
+                $attentionAssets = collect();
             }
         }
 
-        // On renvoie la vue en lui passant le tableau $stats
-        return view('dashboard.dashboard', compact('stats'));
-}
-
+        // On renvoie la vue EXACTE avec les 3 variables !
+        return view('dashboard.dashboard', compact('stats', 'recentTickets', 'attentionAssets'));
+    }
 }
