@@ -26,6 +26,11 @@ return new class extends Migration
             // À qui est assigné le ticket ? C'est un utilisateur du système (tech/admin).
             $table->foreignId('assigned_to_user_id')->nullable()->constrained('users')->nullOnDelete();
 
+            // Colonnes cachées nécessaires pour l'auto-incrémentation (TCK-2026-0001, etc.)
+        $table->smallInteger('ref_year')->unsigned();
+        $table->integer('ref_seq')->unsigned();
+        $table->unique(['ref_year', 'ref_seq']); // Sécurité absolue contre les doublons
+        
             $table->string('reference')->unique(); // Ex: TCK-2026-0001
             $table->string('priority')->default(TicketPriority::MEDIUM->value);
             $table->string('status')->default(TicketStatus::OUVERT->value);

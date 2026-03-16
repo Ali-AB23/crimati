@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketCommentController;
@@ -9,8 +10,11 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OrgUnitController;
 use App\Http\Controllers\AssetCategoryController;
+use App\Http\Controllers\AssetMovementController;
 use App\Http\Controllers\AssetTypeController;
+use App\Http\Controllers\TicketCategoryController;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +53,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('tickets', TicketController::class)->only(['index', 'create', 'store', 'show']);;
     Route::post('tickets/{ticket}/comments', [TicketCommentController::class, 'store'])->name('ticket-comments.store');
 
+
+    // --- NOTIFICATIONS ---
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/mark-all-read',[App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+    Route::delete('/notifications/clear-read', [App\Http\Controllers\NotificationController::class, 'clearRead'])->name('notifications.clearRead');
+    Route::get('/notifications/{notification}/read/{ticket}', [App\Http\Controllers\NotificationController::class, 'readAndRedirect'])->name('notifications.readAndRedirect');
+
     // ====================================================================
     // 🟢🔵 NIVEAU 2 : ACCÈS GESTION DE PARC (ADMIN + INVENTORISTE)
     // ====================================================================
@@ -58,6 +69,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Le catalogue physique
         Route::resource('assets', AssetController::class);
         Route::post('assets/{asset}/move', [App\Http\Controllers\AssetController::class, 'move'])->name('assets.move');
+        // Historique global (Admin & Inventoriste)
+    Route::get('movements',[AssetMovementController::class, 'index'])->name('movements.index');
         // TODO: On ajoutera ici les routes pour l'historique (Movements) et l'Import Excel : 
         /*
             Route::resource('movements', AssetMovementController::class)->only(['index', 'show']);
@@ -80,14 +93,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
        
         // Gestion des acteurs
         Route::resource('employees', EmployeeController::class);
-        // TODO: Route::resource('users', UserController::class);
+        Route::resource('users', UserController::class);
+
+        Route::post('users/{user}/toggle', [UserController::class, 'toggleActive'])->name('users.toggle');
+
 
         // Référentiels
         Route::resource('locations', LocationController::class);
         Route::resource('org-units', OrgUnitController::class);
         Route::resource('asset-categories', AssetCategoryController::class);
         Route::resource('asset-types', AssetTypeController::class);
-        // TODO: Route::resource('ticket-categories', TicketCategoryController::class);
+        Route::resource('ticket-categories', TicketCategoryController::class);
 
     });
 });
@@ -96,8 +112,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
 require __DIR__ . '/auth.php';
 
 
-//this is a temporary route mouvements
-Route::get('/movements', function () { return 'Mouvements'; })->name('movements.index');
-Route::get('/ticket-categories', function () { return 'ticket-categories'; })->name('ticket-categories.index');
-Route::get('/users', function () { return 'users'; })->name('users.index');
 

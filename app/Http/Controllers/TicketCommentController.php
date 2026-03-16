@@ -7,6 +7,7 @@ use App\Models\TicketComment;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\TicketCommentNotification;
 
 class TicketCommentController extends Controller
 {
@@ -18,25 +19,44 @@ class TicketCommentController extends Controller
      */
     public function store(Request $request, Ticket $ticket): RedirectResponse
     {
+        if (in_array($ticket->status->value,[\App\Enums\TicketStatus::FERME->value, \App\Enums\TicketStatus::ANNULE->value])) {
+            return back()->withErrors(['comment_error' => 'Impossible d\'ajouter un commentaire : ce ticket est clôturé ou annulé.']);
+        }
+
         $validated = $request->validate([
             'body' =>['required', 'string', 'min:2', 'max:2000'],
         ]);
 
-        // 2. Création du commentaire lié au ticket
-        // NB: Auth::id() renverra l'ID du User connecté. (On simule l'ID 1 pour l'instant)
-        TicketComment::create([
+        $comment = TicketComment::create([
             'ticket_id' => $ticket->id,
-            'user_id'   => Auth::check() ? Auth::id() : 1, 
+            'user_id'   => Auth::id(), 
             'body'      => $validated['body'],
         ]);
 
-        // 3. Optionnel métier : Si l'Admin répond, on peut passer le ticket en "En cours"
-        // if (Auth::user()->role === UserRole::ADMIN_IT->value && $ticket->status === TicketStatus::OUVERT->value) {
-        //     $ticket->update(['status' => TicketStatus::EN_COURS->value]);
-        // }
+        // =========================================================
+        // 🚀 LA MAGIE DES NOTIFICATIONS
+        // =========================================================
+        // Qui doit recevoir la notification ?
+        // Si c'est l'employé qui écrit, on notifie le technicien (s'il y en a un).
+        // Si c'est le technicien qui écrit, on notifie l'employé.
+        
+        $userToNotify = null;
 
-        // 4. On redirige vers la page du ticket sur laquelle on était
-        return redirect()->route('tickets.show', $ticket)
-                         ->with('success', 'Votre commentaire a été ajouté.');
+        if (Auth::id() === $ticket->requester->user_id) {
+            // C'est le demandeur qui écrit, on notifie l'assigné
+            if ($ticket->assignedTo) {
+                $userToNotify = $ticket->assignedTo;
+            }
+        } else {
+            // C'est un admin/tech qui écrit, on notifie le demandeur
+            $userToNotify = $ticket->requester->user; // Attention : Assure-toi que la relation "user" existe dans le modèle Employee
+        }
+
+        // On envoie la notification !
+        if ($userToNotify) {
+            $userToNotify->notify(new \App\Notifications\TicketCommentNotification($ticket, $comment));
+        }
+
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Votre commentaire a été ajouté.');
     }
 }

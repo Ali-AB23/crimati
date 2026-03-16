@@ -10,13 +10,42 @@ use Illuminate\View\View;
 
 class AssetTypeController extends Controller
 {
-    public function index(): View
+    /**
+     * Affiche la liste des types avec moteur de recherche.
+     */
+    public function index(Request $request): View
     {
-        $types = AssetType::with('category')->orderBy('name')->get();
+        $query = AssetType::with('category');
+
+        // Filtre : Nom
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        // Filtre : Specs Template (Avec ou Sans)
+        if ($request->filled('has_schema')) {
+            if ($request->has_schema === 'yes') {
+                // On cherche ceux dont le JSON n'est ni null, ni vide ("[]" ou "{}")
+                $query->whereNotNull('spec_schema')
+                      ->where('spec_schema', '!=', '[]')
+                      ->where('spec_schema', '!=', '{}');
+            } elseif ($request->has_schema === 'no') {
+                $query->where(function($q) {
+                    $q->whereNull('spec_schema')
+                      ->orWhere('spec_schema', '[]')
+                      ->orWhere('spec_schema', '{}');
+                });
+            }
+        }
+
+        $types = $query->orderBy('name')->paginate(10);
 
         return view('asset-types.index', compact('types'));
     }
 
+    /**
+     * Affiche la PAGE de création (pas de modale ici car le constructeur JSON prend de la place).
+     */
     public function create(): View
     {
         $categories = AssetCategory::orderBy('name')->get();
@@ -27,12 +56,10 @@ class AssetTypeController extends Controller
     {
         $validated = $request->validate([
             'asset_category_id' => ['required', 'exists:asset_categories,id'],
-            'name'              =>['required', 'string', 'max:100'],
-            // On s'assure que si l'admin remplit les specs, c'est bien du format JSON valide !
+            'name'              => ['required', 'string', 'max:100'],
             'spec_schema'       =>['nullable', 'json'], 
         ]);
 
-        // Vérification de l'index unique composite (catégorie + nom)
         $exists = AssetType::where('asset_category_id', $validated['asset_category_id'])
                            ->where('name', $validated['name'])
                            ->exists();
@@ -41,8 +68,6 @@ class AssetTypeController extends Controller
             return back()->withErrors(['name' => 'Ce type existe déjà dans cette catégorie.'])->withInput();
         }
 
-        // Si spec_schema est envoyé sous forme de chaîne JSON, Laravel va le stocker tel quel,
-        // et le convertira en array quand on le lira grâce à notre $casts =['spec_schema' => 'array'].
         if (isset($validated['spec_schema'])) {
             $validated['spec_schema'] = json_decode($validated['spec_schema'], true);
         }
@@ -53,6 +78,9 @@ class AssetTypeController extends Controller
                          ->with('success', 'Type de matériel créé.');
     }
 
+    /**
+     * Affiche la PAGE d'édition.
+     */
     public function edit(AssetType $assetType): View
     {
         $categories = AssetCategory::orderBy('name')->get();
@@ -62,12 +90,11 @@ class AssetTypeController extends Controller
     public function update(Request $request, AssetType $assetType): RedirectResponse
     {
         $validated = $request->validate([
-            'asset_category_id' =>['required', 'exists:asset_categories,id'],
-            'name'              =>['required', 'string', 'max:100'],
+            'asset_category_id' => ['required', 'exists:asset_categories,id'],
+            'name'              => ['required', 'string', 'max:100'],
             'spec_schema'       => ['nullable', 'json'],
         ]);
 
-        // Vérification des doublons (en excluant le type actuel)
         $exists = AssetType::where('asset_category_id', $validated['asset_category_id'])
                            ->where('name', $validated['name'])
                            ->where('id', '!=', $assetType->id)
@@ -89,9 +116,15 @@ class AssetTypeController extends Controller
 
     public function destroy(AssetType $assetType): RedirectResponse
     {
-        $assetType->delete();
-
-        return redirect()->route('asset-types.index')
-                         ->with('success', 'Type supprimé.');
+        try {
+            $assetType->delete();
+            return redirect()->route('asset-types.index')->with('success', 'Type supprimé avec succès.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // SÉCURITÉ : Interdire la suppression d'un type ("PC Portable") si un matériel ("066/CRI") l'utilise encore.
+            if ($e->getCode() == '23000') {
+                return redirect()->route('asset-types.index')->withErrors(['delete_error' => 'Impossible de supprimer ce type car du matériel y est encore rattaché.']);
+            }
+            throw $e;
+        }
     }
 }

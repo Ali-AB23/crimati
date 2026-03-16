@@ -14,10 +14,32 @@ class OrgUnitController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request): View
     {
-        $orgUnits = OrgUnit::with('parent')->get();
-        return view('org-units.index', compact('orgUnits'));
+        $query = OrgUnit::with('parent');
+
+        // Moteur de recherche (Filtres de la maquette)
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('parent_id')) {
+            $query->where('parent_id', $request->parent_id);
+        }
+
+        // On pagine pour avoir un beau tableau (Rows per page : 10 comme sur la maquette)
+        $orgUnits = $query->orderBy('name')->paginate(10);
+
+        // Données pour remplir les menus déroulants des filtres ET des modales !
+        $types = OrgUnitType::cases();
+        // Pour la liste des parents, on prend tout le monde. (Dans la vue, on empêchera une unité d'être son propre parent en Alpine.js)
+        $potentialParents = OrgUnit::orderBy('name')->get();
+
+        return view('org-units.index', compact('orgUnits', 'types', 'potentialParents'));
     }
 
     /**

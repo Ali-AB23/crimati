@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Models\Asset;
 use App\Models\TicketCategory;
 use App\Models\User;
+use App\Enums\LocationType;
 use App\Enums\TicketStatus;
 use App\Enums\TicketPriority;
 use App\Enums\UserRole;
@@ -21,14 +22,66 @@ class TicketController extends Controller
     /**
      * Affiche la liste des tickets (Tableau de bord).
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        // Eager Loading pour éviter le problème N+1
-        $tickets = Ticket::with(['asset', 'category', 'requester', 'assignedTo'])
-                         ->orderBy('created_at', 'desc')
-                         ->paginate(15);
+        $user = Auth::user();
+        
+        // 1. Initialisation de la requête (Eager Loading massif)
+        $query = Ticket::with(['asset', 'requester', 'assignedTo.employee']);
 
-        return view('tickets.index', compact('tickets'));
+        // 2. RÈGLES DE VISIBILITÉ (L'employé ne voit que SES tickets)
+        if ($user->role->value === UserRole::EMPLOYE->value) {
+            $employeeId = $user->employee ? $user->employee->id : 0;
+            $query->where('requester_employee_id', $employeeId);
+        }
+
+        // 3. GESTION DES FILTRES (Moteur de recherche)
+        if ($request->filled('reference')) {
+            $query->where('reference', 'like', '%' . $request->reference . '%');
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->priority);
+        }
+
+        // Filtre "Late" (En retard)
+        if ($request->filled('late')) {
+            if ($request->late === 'yes') {
+                $query->where('due_at', '<', now())
+                      ->whereNotIn('status',[
+                          TicketStatus::RESOLU->value, 
+                          TicketStatus::FERME->value, 
+                          TicketStatus::ANNULE->value
+                      ]);
+            } elseif ($request->late === 'no') {
+                $query->where(function($q) {
+                    $q->where('due_at', '>=', now())
+                      ->orWhereIn('status',[
+                          TicketStatus::RESOLU->value, 
+                          TicketStatus::FERME->value, 
+                          TicketStatus::ANNULE->value
+                      ]);
+                });
+            }
+        }
+
+        if ($request->filled('assigned_to_user_id')) {
+            $query->where('assigned_to_user_id', $request->assigned_to_user_id);
+        }
+
+        // 4. Exécution avec pagination
+        $tickets = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        // 5. Données pour les listes déroulantes (Selects)
+        $statuses = TicketStatus::cases();
+        $priorities = TicketPriority::cases();
+        $technicians = User::with('employee')->whereIn('role',[UserRole::ADMIN_IT->value])->get();
+
+        return view('tickets.index', compact('tickets', 'statuses', 'priorities', 'technicians'));
     }
 
     /**
@@ -36,10 +89,30 @@ class TicketController extends Controller
      */
     public function create(): View
     {
-        // On récupère le matériel et les catégories pour les listes déroulantes
-        // TODO: Selon le CDC, l'employé ne doit voir QUE son matériel ou celui de son bureau.
-        // On filtrera cette requête quand l'Auth sera en place !
-        $assets = Asset::orderBy('inventory_code')->get();
+        $user = Auth::user();
+        $assetsQuery = Asset::query();
+
+        // APPLICATION DU CDC : L'employé ne peut sélectionner QUE le matériel autorisé
+        if ($user->role->value === UserRole::EMPLOYE->value && $user->employee) {
+            $employee = $user->employee;
+            
+            $assetsQuery->where(function ($q) use ($employee) {
+                // A. Affecté à lui
+                $q->where('current_employee_id', $employee->id)
+                  // B. Dans son bureau
+                  ->orWhere('current_location_id', $employee->office_location_id)
+                  // C. Dans un espace commun rattaché à son service ou un espace public
+                  ->orWhereHas('currentLocation', function ($locQuery) use ($employee) {
+                      $locQuery->where('org_unit_id', $employee->org_unit_id)
+                               ->orWhere(function ($publicQuery) {
+                                   $publicQuery->whereNull('org_unit_id')
+                                               ->where('type', '!=', LocationType::STORAGE->value);
+                               });
+                  });
+            });
+        }
+
+        $assets = $assetsQuery->with(['currentLocation', 'currentEmployee'])->orderBy('inventory_code')->get();
         $categories = TicketCategory::orderBy('name')->get();
 
         return view('tickets.create', compact('assets', 'categories'));
@@ -74,7 +147,6 @@ class TicketController extends Controller
             $nextSeq = $lastTicket ? $lastTicket->ref_seq + 1 : 1;
             $reference = sprintf('TCK-%d-%04d', $currentYear, $nextSeq);
 
-            // TODO: Remplacer '1' par Auth::user()->employee->id quand l'auth sera codée
             $requesterId = Auth::check() && Auth::user()->employee ? Auth::user()->employee->id : 1;
 
             return Ticket::create([
@@ -100,10 +172,20 @@ class TicketController extends Controller
      */
     public function show(Ticket $ticket): View
     {
-        // On charge les relations nécessaires pour la page de détails
-        $ticket->load(['asset', 'requester', 'assignedTo', 'comments.author', 'category']);
+        $ticket->load(['asset', 'requester', 'assignedTo', 'comments.author.employee', 'category']);
 
-        return view('tickets.show', compact('ticket'));
+        $technicians = User::with('employee')->whereIn('role',[\App\Enums\UserRole::ADMIN_IT->value])->get();
+
+        // LOGIQUE MÉTIER : Les statuts SUIVANTS autorisés selon le statut actuel
+        $allowedStatuses = match ($ticket->status->value) {
+            \App\Enums\TicketStatus::OUVERT->value   => [\App\Enums\TicketStatus::EN_COURS->value], // L'assignation se fait via le bouton Assign
+            \App\Enums\TicketStatus::ASSIGNE->value  =>[\App\Enums\TicketStatus::EN_COURS->value],
+            \App\Enums\TicketStatus::EN_COURS->value => [\App\Enums\TicketStatus::RESOLU->value],
+            \App\Enums\TicketStatus::RESOLU->value   =>[\App\Enums\TicketStatus::FERME->value],
+            default =>[], // Si Fermé ou Annulé, on ne peut plus rien changer
+        };
+
+        return view('tickets.show', compact('ticket', 'technicians', 'allowedStatuses'));
     }
 
     /**
@@ -111,7 +193,6 @@ class TicketController extends Controller
      */
     public function edit(Ticket $ticket): View
     {
-        // Seuls les Admins ou Techniciens peuvent être assignés à un ticket
         $technicians = User::whereIn('role', [UserRole::ADMIN_IT->value])->get();
 
         return view('tickets.edit', compact('ticket', 'technicians'));
@@ -120,28 +201,63 @@ class TicketController extends Controller
     /**
      * Met à jour le ticket (Changement de statut, Assignation).
      */
+    /**
+     * Met à jour le ticket (Changement de statut, Assignation, Date).
+     */
     public function update(Request $request, Ticket $ticket): RedirectResponse
     {
-        // Validation simple inline (on pourrait faire un UpdateTicketRequest)
+        // 🛑 TA SÉCURITÉ CONSERVÉE : Interdire la modification sur les tickets clos/annulés
+        if (in_array($ticket->status->value,[\App\Enums\TicketStatus::FERME->value, \App\Enums\TicketStatus::ANNULE->value])) {
+            return back()->withErrors(['update_error' => 'Action impossible : ce ticket est définitivement clôturé ou annulé.']);
+        }
+        
         $validated = $request->validate([
             'status'              => ['required', 'string'],
             'assigned_to_user_id' => ['nullable', 'exists:users,id'],
-            'due_at'              => ['nullable', 'date'], // L'Admin IT a le droit de modifier la due_at
+            'due_at'              =>['nullable', 'date'],
         ]);
 
-        // Si le statut passe à "Résolu" ou "Fermé", on horodate
-        if (in_array($validated['status'],[TicketStatus::RESOLU->value, TicketStatus::FERME->value]) && !$ticket->resolved_at) {
+        // 1. MÉMORISER L'ÉTAT AVANT MODIFICATION (Pour les notifications)
+        $oldStatus = $ticket->status->value;
+        $oldAssignedTo = $ticket->assigned_to_user_id;
+
+        // ⚙️ TA LOGIQUE MÉTIER CONSERVÉE : Passage auto à "Assigné"
+        if ($request->has('assigned_to_user_id') && $validated['assigned_to_user_id']) {
+            if ($ticket->status->value === \App\Enums\TicketStatus::OUVERT->value) {
+                $validated['status'] = \App\Enums\TicketStatus::ASSIGNE->value;
+            }
+        }
+
+        // ⚙️ TON HORODATAGE CONSERVÉ
+        if (in_array($validated['status'],[\App\Enums\TicketStatus::RESOLU->value, \App\Enums\TicketStatus::FERME->value]) && !$ticket->resolved_at) {
             $validated['resolved_at'] = now();
         }
 
-        if ($validated['status'] === TicketStatus::FERME->value && !$ticket->closed_at) {
+        if ($validated['status'] === \App\Enums\TicketStatus::FERME->value && !$ticket->closed_at) {
             $validated['closed_at'] = now();
         }
 
+        // 2. APPLICATION DE LA MISE À JOUR
         $ticket->update($validated);
 
+        // =========================================================
+        // 🚀 DÉCLENCHEMENT DES NOTIFICATIONS (Le nouvel ajout)
+        // =========================================================
+        
+        // A. Le statut a-t-il changé ? -> On prévient l'employé qui a créé le ticket
+        if ($oldStatus !== $validated['status']) {
+            if ($ticket->requester && $ticket->requester->user) {
+                $ticket->requester->user->notify(new \App\Notifications\TicketStatusChangedNotification($ticket));
+            }
+        }
+
+        // B. L'assignation a-t-elle changé ? -> On prévient le technicien concerné
+        if ($oldAssignedTo !== $ticket->assigned_to_user_id && $ticket->assignedTo) {
+            $ticket->assignedTo->notify(new \App\Notifications\TicketAssignedNotification($ticket));
+        }
+
         return redirect()->route('tickets.show', $ticket)
-                         ->with('success', 'Le ticket a été mis à jour.');
+                         ->with('success', 'Le ticket a été mis à jour avec succès.');
     }
 
     /**

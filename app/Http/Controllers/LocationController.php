@@ -14,13 +14,34 @@ use Illuminate\View\View;
 
 class LocationController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        // On charge chaque lieu AVEC son parent (Eager Loading)
-        // et l'Unité Org rattachée (ex: "Service IT")
-        $locations = Location::with(['parent', 'orgUnit'])->get();
+        $query = Location::with(['parent', 'orgUnit']);
 
-        return view('locations.index', compact('locations'));
+        // GESTION DES FILTRES (Moteur de recherche de la maquette)
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('parent_id')) {
+            $query->where('parent_id', $request->parent_id);
+        }
+
+        // On pagine pour le tableau (10 lignes par page)
+        $locations = $query->orderBy('name')->paginate(10);
+
+        // Données nécessaires pour les menus déroulants (Filtres ET Modales)
+        $types = LocationType::cases();
+        $potentialParents = Location::orderBy('name')->get();
+        // Optionnel : On récupère aussi les OrgUnits au cas où tu veuilles gérer 
+        // le rattachement (Lieu Commun) depuis la modale "Add Location".
+        $orgUnits = OrgUnit::orderBy('name')->get();
+
+        return view('locations.index', compact('locations', 'types', 'potentialParents', 'orgUnits'));
     }
 
     public function create(): View

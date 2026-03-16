@@ -147,7 +147,7 @@ class AssetController extends Controller
     public function edit(Asset $asset): View
     {
         $assetTypes = AssetType::orderBy('name')->get();
-        $locations = Location::orderBy('name')->get();
+        $locations = Location::doesntHave('children')->orderBy('name')->get();
         $employees = Employee::orderBy('full_name')->get();
 
         return view('assets.edit', compact('asset', 'assetTypes', 'locations', 'employees'));

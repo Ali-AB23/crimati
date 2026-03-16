@@ -20,6 +20,8 @@ class Ticket extends Model
         'requester_employee_id',
         'assigned_to_user_id',
         'reference',
+        'ref_year', 
+        'ref_seq',  
         'priority',
         'status',
         'description',
