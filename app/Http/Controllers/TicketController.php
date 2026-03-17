@@ -97,17 +97,27 @@ class TicketController extends Controller
             $employee = $user->employee;
             
             $assetsQuery->where(function ($q) use ($employee) {
-                // A. Affecté à lui
+                // RÈGLE 1 : Affecté directement à l'employé
                 $q->where('current_employee_id', $employee->id)
-                  // B. Dans son bureau
-                  ->orWhere('current_location_id', $employee->office_location_id)
-                  // C. Dans un espace commun rattaché à son service ou un espace public
-                  ->orWhereHas('currentLocation', function ($locQuery) use ($employee) {
-                      $locQuery->where('org_unit_id', $employee->org_unit_id)
-                               ->orWhere(function ($publicQuery) {
-                                   $publicQuery->whereNull('org_unit_id')
-                                               ->where('type', '!=', LocationType::STORAGE->value);
-                               });
+                  // RÈGLES 2 & 3 : Non affecté à quelqu'un d'autre ET dans un bon lieu
+                  ->orWhere(function ($qUnassigned) use ($employee) {
+                      $qUnassigned->whereNull('current_employee_id')
+                                  ->whereHas('currentLocation', function ($qLoc) use ($employee) {
+                                      $qLoc->where(function ($qConditions) use ($employee) {
+                                          // 2: Bureau perso
+                                          $qConditions->where('id', $employee->office_location_id)
+                                                      // 3a: Service
+                                                      ->orWhere('org_unit_id', $employee->org_unit_id)
+                                                      // 3b: Espace public (Pas un bureau ni stock)
+                                                      ->orWhere(function ($qPublic) {
+                                                          $qPublic->whereNull('org_unit_id')
+                                                                  ->whereNotIn('type',[
+                                                                      LocationType::OFFICE->value,
+                                                                      LocationType::STORAGE->value
+                                                                  ]);
+                                                      });
+                                      });
+                                  });
                   });
             });
         }
@@ -117,13 +127,51 @@ class TicketController extends Controller
 
         return view('tickets.create', compact('assets', 'categories'));
     }
-
     /**
      * Sauvegarde un nouveau ticket.
      */
     public function store(StoreTicketRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        $user = Auth::user();
+
+        // =========================================================
+        // 🛑 SÉCURITÉ BACKEND : Empêcher le piratage du formulaire (F12)
+        // =========================================================
+        if ($user->role->value === UserRole::EMPLOYE->value && $user->employee) {
+            $employee = $user->employee;
+            $assetId = $validated['asset_id'];
+
+            // On revérifie côté Serveur si l'Asset soumis fait bien partie du périmètre autorisé
+            $isAuthorized = Asset::where('id', $assetId)
+                ->where(function ($q) use ($employee) {
+                    $q->where('current_employee_id', $employee->id)
+                      ->orWhere(function ($qUnassigned) use ($employee) {
+                          $qUnassigned->whereNull('current_employee_id')
+                                      ->whereHas('currentLocation', function ($qLoc) use ($employee) {
+                                          $qLoc->where(function ($qConditions) use ($employee) {
+                                              $qConditions->where('id', $employee->office_location_id)
+                                                          ->orWhere('org_unit_id', $employee->org_unit_id)
+                                                          ->orWhere(function ($qPublic) {
+                                                              $qPublic->whereNull('org_unit_id')
+                                                                      ->whereNotIn('type',[
+                                                                          LocationType::OFFICE->value,
+                                                                          LocationType::STORAGE->value
+                                                                      ]);
+                                                          });
+                                          });
+                                      });
+                      });
+                })->exists();
+
+            if (!$isAuthorized) {
+                return back()->withErrors(['asset_id' => 'Alerte Sécurité : Vous n\'êtes pas autorisé à créer une réclamation pour ce matériel.'])->withInput();
+            }
+        }
+
+        // =========================================================
+        // SUITE NORMALE DE LA CRÉATION
+        // =========================================================
 
         // 1. Calcul automatique de la deadline
         $dueAt = match ($validated['priority']) {
@@ -161,13 +209,7 @@ class TicketController extends Controller
                 'ref_seq'               => $nextSeq,
                 'reference'             => $reference,
             ]);
-
         });
-
-        // On récupère TOUS les utilisateurs ayant le rôle ADMIN_IT
-        $admins = \App\Models\User::where('role', \App\Enums\UserRole::ADMIN_IT->value)->get();
-        // On utilise la Facade Notification pour envoyer à toute la collection d'un coup !
-        \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewTicketCreatedNotification($ticket));
 
         return redirect()->route('tickets.index')
                          ->with('success', 'Ticket créé avec la référence : ' . $ticket->reference);

@@ -26,29 +26,37 @@ class AssetController extends Controller
         // 1. Initialisation de la requête de base (Eager Loading pour éviter N+1)
         $query = Asset::with(['type.category', 'currentLocation', 'currentEmployee']);
 
-        // 2. APPLICATION DES RÈGLES DE VISIBILITÉ (Adaptation Métier : Espaces Publics)
+        // 2. APPLICATION DES RÈGLES DE VISIBILITÉ (STRICTES SELON CDC)
         if ($user->role->value === UserRole::EMPLOYE->value && $user->employee) {
             $employee = $user->employee;
             
             $query->where(function ($q) use ($employee) {
-                // A. Matériel affecté personnellement à l'employé
+                
+                // RÈGLE 1 : Affecté directement à l'employé
                 $q->where('current_employee_id', $employee->id)
                   
-                  // B. OU Matériel situé dans le bureau physique de l'employé
-                  ->orWhere('current_location_id', $employee->office_location_id)
-                  
-                  // C. OU Matériel situé dans un lieu spécifique...
-                  ->orWhereHas('currentLocation', function ($locQuery) use ($employee) {
+                  // RÈGLES 2 & 3 : Non affecté à quelqu'un d'autre ET dans un bon lieu
+                  ->orWhere(function ($qUnassigned) use ($employee) {
                       
-                      // C1. ... qui appartient au même Service/Pôle que l'employé
-                      $locQuery->where('org_unit_id', $employee->org_unit_id)
-                      
-                               // C2. ... OU BIEN c'est un "Espace Public" (NULL) 
-                               // à l'exclusion stricte des Magasins/Stocks !
-                               ->orWhere(function ($publicQuery) {
-                                   $publicQuery->whereNull('org_unit_id')
-                                               ->where('type', '!=', \App\Enums\LocationType::STORAGE->value);
-                               });
+                      $qUnassigned->whereNull('current_employee_id')
+                                  ->whereHas('currentLocation', function ($qLoc) use ($employee) {
+                                      
+                                      $qLoc->where(function ($qConditions) use ($employee) {
+                                          // Condition 2: Dans mon bureau perso
+                                          $qConditions->where('id', $employee->office_location_id)
+                                                      
+                                                      // Condition 3a: Lieu de mon service
+                                                      ->orWhere('org_unit_id', $employee->org_unit_id)
+                                                      
+                                                      // Condition 3b: Espace public (Pas un bureau)
+                                                      ->orWhere(function ($qPublic) {
+                                                          $qPublic->whereNull('org_unit_id')
+                                                                  ->where('type', '!=', \App\Enums\LocationType::OFFICE->value)
+                                                                  // On exclut aussi le stock (Optionnel, mais recommandé)
+                                                                  ->where('type', '!=', \App\Enums\LocationType::STORAGE->value);
+                                                      });
+                                      });
+                                  });
                   });
             });
         }
@@ -93,7 +101,7 @@ class AssetController extends Controller
     /**
      * Affiche le formulaire de création d'un nouveau matériel.
      */
-    public function create(): View
+    public function create(): View    
     {
         $assetTypes = AssetType::orderBy('name')->get();
         

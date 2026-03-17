@@ -58,14 +58,48 @@ class DashboardController extends Controller
 
         } 
         // 2. LOGIQUE POUR L'EMPLOYÉ (Vue Restreinte à ses données)
+        // 2. LOGIQUE POUR L'EMPLOYÉ (Vue Restreinte à ses données)
         else {
             if ($employeeId) {
-                $stats['total_assets'] = Asset::where('current_employee_id', $employeeId)->count();
+                // On a besoin de l'objet employé complet pour récupérer son service (org_unit_id)
+                $employee = $user->employee;
+
+                // --- NOUVEAU : SÉPARATION DU MATÉRIEL (Personnel vs Public) ---
                 
-                $stats['broken_assets'] = Asset::where('current_employee_id', $employeeId)
+                // 1. Matériel qui m'est directement affecté
+                $stats['my_assets'] = Asset::where('current_employee_id', $employeeId)->count();
+                
+                // 2. Matériel public (Dans les lieux de mon service ou les espaces 100% publics)
+                $stats['public_assets'] = Asset::where(function($q) use ($employeeId) {
+                        $q->where('current_employee_id', '!=', $employeeId)
+                          ->orWhereNull('current_employee_id');
+                    })
+                    ->whereHas('currentLocation', function ($locQuery) use ($employee) {
+                        $locQuery->where('org_unit_id', $employee->org_unit_id)
+                                 ->orWhere(function ($publicQuery) {
+                                     $publicQuery->whereNull('org_unit_id')
+                                                 ->where('type', '!=', \App\Enums\LocationType::STORAGE->value);
+                                 });
+                    })->count();
+
+                // On maintient 'total_assets' pour la compatibilité avec la vue
+                $stats['total_assets'] = $stats['my_assets'] + $stats['public_assets'];
+                
+                // --- CONSERVÉ ET AMÉLIORÉ : Le matériel en panne (Inclut désormais le matériel public de l'employé) ---
+                $stats['broken_assets'] = Asset::where(function($q) use ($employeeId, $employee) {
+                        $q->where('current_employee_id', $employeeId)
+                          ->orWhereHas('currentLocation', function ($locQuery) use ($employee) {
+                              $locQuery->where('org_unit_id', $employee->org_unit_id)
+                                       ->orWhere(function ($publicQuery) {
+                                           $publicQuery->whereNull('org_unit_id')
+                                                       ->where('type', '!=', \App\Enums\LocationType::STORAGE->value);
+                                       });
+                          });
+                    })
                     ->whereIn('status',[AssetStatus::EN_PANNE->value, AssetStatus::EN_REPARATION->value])
                     ->count();
 
+                // --- CONSERVÉ INTACT : Les Tickets ---
                 $stats['active_tickets'] = Ticket::where('requester_employee_id', $employeeId)
                     ->whereIn('status',[TicketStatus::OUVERT->value, TicketStatus::ASSIGNE->value, TicketStatus::EN_COURS->value])
                     ->count();
@@ -74,14 +108,24 @@ class DashboardController extends Controller
                     ->whereNotIn('status',[TicketStatus::RESOLU->value, TicketStatus::FERME->value, TicketStatus::ANNULE->value])
                     ->where('due_at', '<', now())->count();
 
-                // --- NOUVEAU : Récupération des données pour les tableaux (Restreint à l'employé) ---
+                // --- CONSERVÉ INTACT : Les Tableaux ---
                 $recentTickets = Ticket::with(['asset', 'assignedTo.employee'])
                                        ->where('requester_employee_id', $employeeId)
                                        ->orderBy('created_at', 'desc')
                                        ->limit(5)->get();
 
+                // Amélioré : Affiche aussi les assets publics en panne dans le 2ème tableau
                 $attentionAssets = Asset::with(['type.category', 'currentLocation', 'currentEmployee'])
-                                        ->where('current_employee_id', $employeeId)
+                                        ->where(function($q) use ($employeeId, $employee) {
+                                            $q->where('current_employee_id', $employeeId)
+                                              ->orWhereHas('currentLocation', function ($locQuery) use ($employee) {
+                                                  $locQuery->where('org_unit_id', $employee->org_unit_id)
+                                                           ->orWhere(function ($publicQuery) {
+                                                               $publicQuery->whereNull('org_unit_id')
+                                                                           ->where('type', '!=', \App\Enums\LocationType::STORAGE->value);
+                                                           });
+                                              });
+                                        })
                                         ->whereIn('status',[AssetStatus::EN_PANNE->value, AssetStatus::EN_REPARATION->value])
                                         ->limit(5)->get();
             } else {

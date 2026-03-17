@@ -40,23 +40,33 @@ class TicketCommentController extends Controller
         // Si c'est l'employé qui écrit, on notifie le technicien (s'il y en a un).
         // Si c'est le technicien qui écrit, on notifie l'employé.
         
-        $userToNotify = null;
+        $currentUserId = \Illuminate\Support\Facades\Auth::id();
+        $notification = new \App\Notifications\TicketCommentNotification($ticket, $comment);
 
-        if (Auth::id() === $ticket->requester->user_id) {
-            // C'est le demandeur qui écrit, on notifie l'assigné
-            if ($ticket->assignedTo) {
-                $userToNotify = $ticket->assignedTo;
+        // A. Est-ce que l'auteur du commentaire est le demandeur (l'Employé) ?
+        if ($ticket->requester && $currentUserId === $ticket->requester->user_id) {
+            
+            if ($ticket->assigned_to_user_id) {
+                // Cas 1 : Le ticket est assigné -> On notifie spécifiquement le technicien en charge
+                if ($ticket->assignedTo) {
+                    $ticket->assignedTo->notify($notification);
+                }
+            } else {
+                // Cas 2 : Le ticket n'est pas encore assigné -> On notifie TOUS les Admins IT !
+                $admins = \App\Models\User::where('role', \App\Enums\UserRole::ADMIN_IT->value)->get();
+                \Illuminate\Support\Facades\Notification::send($admins, $notification);
             }
-        } else {
-            // C'est un admin/tech qui écrit, on notifie le demandeur
-            $userToNotify = $ticket->requester->user; // Attention : Assure-toi que la relation "user" existe dans le modèle Employee
+
+        } 
+        // B. L'auteur du commentaire est un Admin/Technicien
+        else {
+            // On notifie le demandeur (l'Employé)
+            if ($ticket->requester && $ticket->requester->user) {
+                $ticket->requester->user->notify($notification);
+            }
         }
 
-        // On envoie la notification !
-        if ($userToNotify) {
-            $userToNotify->notify(new \App\Notifications\TicketCommentNotification($ticket, $comment));
-        }
-
-        return redirect()->route('tickets.show', $ticket)->with('success', 'Votre commentaire a été ajouté.');
+        return redirect()->route('tickets.show', $ticket)
+                         ->with('success', 'Votre commentaire a été ajouté.');
     }
 }

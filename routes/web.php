@@ -46,7 +46,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+    //materiel
+    Route::get('assets',[AssetController::class, 'index'])->name('assets.index');
+    Route::get('assets/{asset}/show',[AssetController::class, 'show'])->name('assets.show');
 
     // Tickets (Limité à la consultation et création pour tout le monde)
     // Les règles fines (statut, assignation, due_at) se font dans TicketController
@@ -65,12 +67,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ====================================================================
 
     Route::middleware(['role:ADMIN_IT,INVENTORISTE'])->group(function () {
+        
 
         // Le catalogue physique
-        Route::resource('assets', AssetController::class);
-        Route::post('assets/{asset}/move', [App\Http\Controllers\AssetController::class, 'move'])->name('assets.move');
+        Route::get('assets/create',[AssetController::class, 'create'])->name('assets.create');
+        Route::post('assets',[AssetController::class, 'store'])->name('assets.store');
+        Route::get('assets/{asset}/edit',[AssetController::class, 'edit'])->name('assets.edit');
+        
+        Route::put('assets/{asset}',[AssetController::class, 'update'])->name('assets.update');
+        Route::delete('assets/{asset}',[AssetController::class, 'destroy'])->name('assets.destroy');
+        Route::post('assets/{asset}/move', [AssetController::class, 'move'])->name('assets.move');
+
+
+
+
+        // Route::resource('assets', AssetController::class);
         // Historique global (Admin & Inventoriste)
-    Route::get('movements',[AssetMovementController::class, 'index'])->name('movements.index');
+        Route::get('movements',[AssetMovementController::class, 'index'])->name('movements.index');
         // TODO: On ajoutera ici les routes pour l'historique (Movements) et l'Import Excel : 
         /*
             Route::resource('movements', AssetMovementController::class)->only(['index', 'show']);
