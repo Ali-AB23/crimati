@@ -161,7 +161,13 @@ class TicketController extends Controller
                 'ref_seq'               => $nextSeq,
                 'reference'             => $reference,
             ]);
+
         });
+
+        // On récupère TOUS les utilisateurs ayant le rôle ADMIN_IT
+        $admins = \App\Models\User::where('role', \App\Enums\UserRole::ADMIN_IT->value)->get();
+        // On utilise la Facade Notification pour envoyer à toute la collection d'un coup !
+        \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewTicketCreatedNotification($ticket));
 
         return redirect()->route('tickets.index')
                          ->with('success', 'Ticket créé avec la référence : ' . $ticket->reference);

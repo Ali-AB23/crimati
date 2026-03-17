@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -21,14 +22,12 @@ class LoginRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'username' => ['required', 'string'],
-            'password' => ['required', 'string'],
+            'password' =>['required', 'string'],
         ];
     }
 
@@ -41,6 +40,24 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        // =========================================================
+        // 🚀 SÉCURITÉ MÉTIER : Vérification du statut Actif/Inactif
+        // =========================================================
+        // On cherche l'utilisateur dans la base de données
+        $user = User::where('username', $this->input('username'))->first();
+
+        // S'il existe MAIS qu'il est inactif (active == false ou 0)
+        if ($user && ! $user->active) {
+            // On compte quand même ça comme une tentative échouée pour la sécurité anti-spam
+            RateLimiter::hit($this->throttleKey());
+
+            // On rejette la connexion avec un message très explicite pour l'employé
+            throw ValidationException::withMessages([
+                'username' => "Votre compte a été désactivé. Veuillez contacter l'administrateur IT.",
+            ]);
+        }
+
+        // Si l'utilisateur est actif, on passe à la vérification standard du mot de passe
         if (! Auth::attempt($this->only('username', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
@@ -68,7 +85,8 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            // CORRECTION DU BUG BREEZE : On remplace 'email' par 'username'
+            'username' => trans('auth.throttle',[
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),

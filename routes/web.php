@@ -75,10 +75,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         /*
             Route::resource('movements', AssetMovementController::class)->only(['index', 'show']);
         
-        // Import Excel
-        Route::get('/import/assets',[ImportController::class, 'create'])->name('import.assets.create');
-        Route::post('/import/assets', [ImportController::class, 'store'])->name('import.assets.store');
         */
+        // --- IMPORT EXCEL ---
+        Route::get('/import/assets',[App\Http\Controllers\ImportController::class, 'showUploadForm'])->name('import.upload');
+        Route::post('/import/assets/process', [App\Http\Controllers\ImportController::class, 'processUpload'])->name('import.process');
+        Route::get('/import/assets/result',[App\Http\Controllers\ImportController::class, 'showResultForm'])->name('import.result');
     });
 
 
