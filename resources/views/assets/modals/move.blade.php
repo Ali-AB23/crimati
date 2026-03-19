@@ -23,8 +23,8 @@
                 <div class="px-4 py-5 sm:p-6 border-b border-gray-100 shrink-0">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900" id="modal-title">Deplacer materiel</h3>
-                            <p class="text-sm text-gray-500 mt-1">Asset: {{ $asset->inventory_code }}</p>
+                            <h3 class="text-xl font-bold text-gray-900" id="modal-title">Déplacer le matériel</h3>
+                            <p class="text-sm text-gray-500 mt-1">Matériel: {{ $asset->inventory_code }}</p>
                         </div>
                         <!-- Bouton croix (X) pour mobile -->
                         <button @click="showMoveModal = false" class="text-gray-400 hover:text-gray-500">
@@ -42,15 +42,15 @@
                         <!-- Rappel des infos actuelles (grid-cols-1 sur mobile, 2 sur tablette) -->
                         <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Current Location</p>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Localisation actuelle</p>
                                 <p class="text-sm font-bold text-gray-900">{{ optional($asset->currentLocation)->name ?? 'Stock' }}</p>
                             </div>
                             <div>
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Current Employee</p>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Employé actuel</p>
                                 <p class="text-sm font-bold text-gray-900">{{ optional($asset->currentEmployee)->full_name ?? 'N/A' }}</p>
                             </div>
                             <div class="sm:col-span-2 border-t border-gray-200 pt-3">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Moved By</p>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Mouvement effectué par</p>
                                 <p class="text-sm font-bold text-gray-900">{{ Auth::user()->employee->full_name ?? Auth::user()->username }}</p>
                             </div>
                         </div>
@@ -67,14 +67,14 @@
                             </div>
 
                             <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-[11px] text-gray-600 leading-relaxed">
-                                <span class="font-bold text-gray-800">AFFECTATION:</span> assign to an office and/or employee<br>
-                                <span class="font-bold text-gray-800">TRANSFERT:</span> change office and/or employee<br>
-                                <span class="font-bold text-gray-800">RETOUR:</span> return to stock (employee cleared)<br>
-                                <span class="font-bold text-gray-800">DEPLACEMENT:</span> location change only
+                                <span class="font-bold text-gray-800">AFFECTATION :</span> assignation à un bureau et/ou un employé.<br>
+                                <span class="font-bold text-gray-800">TRANSFERT :</span> changement de bureau et/ou d'employé.<br>
+                                <span class="font-bold text-gray-800">RETOUR :</span> retour au stock (désaffectation de l'employé).<br>
+                                <span class="font-bold text-gray-800">DÉPLACEMENT :</span> changement de localisation physique uniquement.
                             </div>
 
                             <div>
-                                <label class="block text-sm font-bold text-gray-900 mb-1">To localisation</label>
+                                <label class="block text-sm font-bold text-gray-900 mb-1">Nouvelle localisation</label>
                                 <select name="to_location_id" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 sm:text-sm">
                                     @foreach($locations as $location)
                                         <option value="{{ $location->id }}" {{ $asset->current_location_id == $location->id ? 'selected' : '' }}>{{ $location->name }}</option>
@@ -83,7 +83,7 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-bold text-gray-900 mb-1">To employe (optional)</label>
+                                <label class="block text-sm font-bold text-gray-900 mb-1">Nouvel employé (Optionnel)</label>
                                 <select name="to_employee_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 sm:text-sm">
                                     <option value="">-</option>
                                     @foreach($employees as $employee)
@@ -93,8 +93,8 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-bold text-gray-900 mb-1">Note (optional)</label>
-                                <textarea name="note" rows="2" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 sm:text-sm" placeholder="Reason for movement..."></textarea>
+                                <label class="block text-sm font-bold text-gray-900 mb-1">Observations (Optionnel)</label>
+                                <textarea name="note" rows="2" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 sm:text-sm"  placeholder="Raison du mouvement..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -102,10 +102,10 @@
                     <!-- FOOTER MODALE (Boutons, s'empilent sur mobile) -->
                     <div class="px-4 py-4 sm:px-6 sm:flex sm:flex-row-reverse bg-gray-50 border-t border-gray-100 shrink-0">
                         <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent px-4 py-2 bg-green-700 text-base font-bold text-white shadow-sm hover:bg-green-800 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition">
-                            Confirm
+                            Confirmer
                         </button>
                         <button type="button" @click="showMoveModal = false" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 px-4 py-2 bg-white text-base font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition">
-                            Cancel
+                            Annuler
                         </button>
                     </div>
                 </form>

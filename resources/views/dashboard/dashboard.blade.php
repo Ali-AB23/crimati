@@ -1,8 +1,24 @@
 <x-app-layout>
 
     @php
-        // On détermine si l'utilisateur est un simple employé
-        $isEmployee = Auth::user()->role->value === \App\Enums\UserRole::EMPLOYE->value;
+        $role = Auth::user()->role->value;
+        $isEmployee = $role === \App\Enums\UserRole::EMPLOYE->value;
+        $isAdmin = $role === \App\Enums\UserRole::ADMIN_IT->value;
+
+
+        $prioTranslations =[
+        'urgent' => 'Urgente',
+        'high'   => 'Haute',
+        'medium' => 'Normale',
+        'low'    => 'Basse',
+    ];
+        $prioColors = [
+        'urgent' => ['bg' => 'bg-red-100', 'text' => 'text-red-700'],
+        'high'   => ['bg' => 'bg-orange-100', 'text' => 'text-orange-700'],
+        'medium' => ['bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
+        'low'    => ['bg' => 'bg-green-100', 'text' => 'text-green-700'],
+    ];
+    
     @endphp
 
     <!-- ======================================================= -->
@@ -17,7 +33,7 @@
                 <p class="text-sm text-gray-500 mt-1">Bienvenue sur votre espace. Voici un résumé de vos équipements et demandes.</p>
             </div>
             <a href="{{ route('tickets.create') }}" class="px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-bold hover:bg-green-800 transition shadow-sm whitespace-nowrap">
-                + Nouvelle demande
+                + Nouvelle réclamation
             </a>
         </div>
 
@@ -103,166 +119,289 @@
     <!-- ======================================================= -->
     @else
 
-        <!-- EN-TÊTE (Ton code original) -->
+        <!-- EN-TÊTE 100% FRANÇAIS -->
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
-            <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Tableau de bord</h1>
+                <p class="text-sm text-gray-500 mt-1">
+                    Vue globale du parc matériel 
+                    @if($isAdmin) et des réclamations @endif.
+                </p>
+            </div>
             <div class="flex flex-wrap gap-2 sm:gap-3">
-                <a href="{{ route('assets.index') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">View materiels</a>
-                <a href="{{ route('tickets.index') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">View reclamations</a>
+                <a href="{{ route('assets.index') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">Voir matériels</a>
+                @if($isAdmin)
+                    <a href="{{ route('tickets.index') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">Voir réclamations</a>
+                @endif
             </div>
         </div>
 
-        <!-- LES 6 CARTES (KPIs) (Ton code original) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-green-600 p-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Total Assets</p>
-                <p class="text-3xl font-bold text-gray-900">{{ $stats['total_assets'] ?? 0 }}</p>
+        <!-- LES 6 CARTES (KPIs) : 100% FRANÇAIS -->
+        <div class="grid grid-cols-2 md:grid-cols-3 {{ $isAdmin ? 'xl:grid-cols-6' : '' }} gap-4 mb-8">
+
+            <!-- Total Matériels -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-blue-500 p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Total Matériels</p>
+                        <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ $stats['total_assets'] ?? 0 }}</p>
+                    </div>
+                    <div class="p-2 md:p-3 bg-blue-50 rounded-full text-blue-500">
+                        <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 13V7a2 2 0 00-2-2h-3V3H9v2H6a2 2 0 00-2 2v6m16 0v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6m16 0H4"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-green-600 p-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Assets En_Panne</p>
-                <p class="text-3xl font-bold text-gray-900">{{ $stats['broken_assets'] ?? 0 }}</p>
+
+            <!-- En Panne -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-red-500 p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">En Panne</p>
+                        <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ $stats['broken_assets'] ?? 0 }}</p>
+                    </div>
+                    <div class="p-2 md:p-3 bg-red-50 rounded-full text-red-500">
+                        <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01M10.29 3.86l-7 12A1 1 0 004.14 18h15.72a1 1 0 00.85-1.54l-7-12a1 1 0 00-1.7 0z"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-green-600 p-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">En_Reparation</p>
-                <p class="text-3xl font-bold text-gray-900">0</p>
+
+            <!-- En Réparation -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-orange-400 p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">En Réparation</p>
+                        <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ $chartData['status']['en_reparation'] ?? 0 }}</p>
+                    </div>
+                    <div class="p-2 md:p-3 bg-orange-50 rounded-full text-orange-500">
+                        <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14.7 6.3a4 4 0 01-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-3 3z"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-green-600 p-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Tickets Ouvert</p>
-                <p class="text-3xl font-bold text-gray-900">{{ $stats['active_tickets'] ?? 0 }}</p>
+
+            @if($isAdmin)
+
+            <!-- Tickets Ouverts -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-green-500 p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Tickets Ouverts</p>
+                        <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ $stats['active_tickets'] ?? 0 }}</p>
+                    </div>
+                    <div class="p-2 md:p-3 bg-green-50 rounded-full text-green-500">
+                        <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7h18M3 12h18M3 17h18"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-green-600 p-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Tickets En_Cours</p>
-                <p class="text-3xl font-bold text-gray-900">0</p>
+
+            <!-- Tickets En Cours -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-indigo-500 p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Tickets En Cours</p>
+                        <p class="text-2xl md:text-3xl font-bold text-gray-900">
+                            {{ max(0, ($stats['active_tickets'] ?? 0) - ($chartData['status']['en_panne'] ?? 0)) }}
+                        </p>
+                    </div>
+                    <div class="p-2 md:p-3 bg-indigo-50 rounded-full text-indigo-500">
+                        <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-green-600 p-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Tickets Late</p>
-                <p class="text-3xl font-bold text-gray-900">{{ $stats['late_tickets'] ?? 0 }}</p>
+
+            <!-- Tickets En Retard -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-rose-600 p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Tickets En Retard</p>
+                        <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ $stats['late_tickets'] ?? 0 }}</p>
+                    </div>
+                    <div class="p-2 md:p-3 bg-rose-50 rounded-full text-rose-600">
+                        <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            @endif
+
+        </div>
+
+        <!-- 📊 LES GRAPHIQUES (Pour Admin & Inventoriste) -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mb-8">
+            <!-- GRAPHIQUE 1 -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Répartition du parc matériel</h2>
+                <div class="relative h-64 w-full flex justify-center">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <!-- GRAPHIQUE 2 -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Évolution des ajouts (6 derniers mois)</h2>
+                <div class="relative h-64 w-full">
+                    <canvas id="trendChart"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- ZONE DES TABLEAUX (Ton code original) -->
-        <div class="flex flex-col space-y-6 w-full">
+        <!-- TABLEAU DES TICKETS RÉCENTS (Réservé à l'Admin IT) -->
+        @if($isAdmin)
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col mb-8">
+            <div class="p-5 border-b border-gray-100 shrink-0">
+                <h2 class="text-lg font-bold text-gray-900">Dernières réclamations</h2>
+            </div>
             
-            <!-- TABLEAU 1 : RECENT TICKETS -->
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div class="p-5 border-b border-gray-100">
-                    <h2 class="text-lg font-bold text-gray-900">Recent tickets</h2>
-                </div>
-                <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left border-collapse whitespace-nowrap">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Reference</th>
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Materiel</th>
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Priority</th>
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Due At</th>
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Assigne A</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @forelse($recentTickets as $ticket)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="p-4 text-sm font-medium text-gray-900">{{ $ticket->reference }}</td>
-                                <td class="p-4 text-sm text-gray-600">{{ optional($ticket->asset)->inventory_code ?? 'N/A' }}</td>
-                                <td class="p-4">
-                                    <span class="text-xs font-bold px-2 py-1 rounded bg-orange-100 text-orange-700 uppercase">
-                                        {{ $ticket->priority->value }}
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100">
+                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Référence</th>
+                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Matériel</th>
+                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Priorité</th>
+                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Statut</th>
+                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Date Limite</th>
+                            <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Assigné À</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($recentTickets as $ticket)
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="p-4 text-sm font-medium text-gray-900">{{ $ticket->reference }}</td>
+                            <td class="p-4 text-sm text-gray-600">{{ optional($ticket->asset)->inventory_code ?? 'N/A' }}</td>
+                            <td class="p-4">
+                                <span class="text-[10px] font-bold px-2 py-1 rounded {{ $prioColors[$ticket->priority->value]['bg'] }} {{ $prioColors[$ticket->priority->value]['text'] }} uppercase">
+                                    {{ $ticket->priority->value }}
+                                </span>
+                            </td>
+                            <td class="p-4 text-sm text-gray-600">{{ str_replace('_', ' ', ucfirst($ticket->status->value)) }}</td>
+                            
+                            <td class="p-4 text-sm text-gray-600">
+                                @if($ticket->due_at)
+                                    <div class="flex items-center space-x-2">
+                                        <span class="leading-tight">
+                                            {{ $ticket->due_at->format('Y-m-d') }}<br>
+                                            <span class="text-[10px] text-gray-400">{{ $ticket->due_at->format('H:i') }}</span>
+                                        </span>
+                                        @if($ticket->due_at->isPast() && !in_array($ticket->status->value,['resolu', 'ferme', 'annule']))
+                                            <span class="bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">RETARD</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            
+                            <td class="p-4 text-sm text-gray-600">
+                                @if($ticket->assignedTo && $ticket->assignedTo->employee)
+                                    <span class="whitespace-normal inline-block w-24 leading-tight">
+                                        {{ $ticket->assignedTo->employee->full_name }}
                                     </span>
-                                </td>
-                                <td class="p-4 text-sm text-gray-600">{{ str_replace('_', ' ', $ticket->status->value) }}</td>
-                                
-                                <td class="p-4 text-sm text-gray-600">
-                                    @if($ticket->due_at)
-                                        <div class="flex items-center space-x-2">
-                                            <span class="leading-tight">
-                                                {{ $ticket->due_at->format('Y-m-d') }}<br>
-                                                <span class="text-xs text-gray-400">{{ $ticket->due_at->format('H:i') }}</span>
-                                            </span>
-                                            @if($ticket->due_at->isPast() && !in_array($ticket->status->value,['resolu', 'ferme', 'annule']))
-                                                <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">Late</span>
-                                            @endif
-                                        </div>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                
-                                <td class="p-4 text-sm text-gray-600">
-                                    @if($ticket->assignedTo && $ticket->assignedTo->employee)
-                                        <span class="whitespace-normal inline-block w-24 leading-tight">
-                                            {{ $ticket->assignedTo->employee->full_name }}
-                                        </span>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="p-4 text-center text-gray-500 text-sm">Aucun ticket récent.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-gray-500 text-sm">Aucune réclamation récente.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-
-            <!-- TABLEAU 2 : ASSETS NEEDING ATTENTION -->
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div class="p-5 border-b border-gray-100">
-                    <h2 class="text-lg font-bold text-gray-900">Assets needing attention</h2>
-                </div>
-                <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left border-collapse whitespace-nowrap">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Code Inventaire</th>
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Type</th>
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Statut</th>
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Localisation</th>
-                                <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Affecte A</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @forelse($attentionAssets as $asset)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="p-4 text-sm font-bold text-gray-900">{{ $asset->inventory_code }}</td>
-                                
-                                <td class="p-4 text-sm text-gray-600 leading-tight">
-                                    {{ optional($asset->type)->name ?? 'N/A' }} <br>
-                                    @if($asset->type && $asset->type->category)
-                                        <span class="text-xs text-gray-400">({{ $asset->type->category->name }})</span>
-                                    @endif
-                                </td>
-                                
-                                <td class="p-4 text-sm font-bold text-red-600 capitalize">
-                                    {{ str_replace('_', ' ', $asset->status->value) }}
-                                </td>
-                                
-                                <td class="p-4 text-sm text-gray-600">{{ optional($asset->currentLocation)->name ?? 'N/A' }}</td>
-                                
-                                <td class="p-4 text-sm text-gray-600">
-                                    @if($asset->currentEmployee)
-                                        <span class="whitespace-normal inline-block w-24 leading-tight text-gray-900">
-                                            {{ $asset->currentEmployee->full_name }}
-                                        </span>
-                                    @else
-                                        <span class="text-gray-400">Non affecte</span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="p-4 text-center text-gray-500 text-sm">Tout le matériel est opérationnel !</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
+        @endif
+
+        <!-- INITIALISATION DES GRAPHIQUES -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // 1. Graphique Doughnut (Statuts)
+                const ctxStatus = document.getElementById('statusChart').getContext('2d');
+                new Chart(ctxStatus, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['En Stock', 'En Service', 'En Panne', 'En Réparation', 'Réformé'],
+                        datasets: [{
+                            data: [
+                                {{ $chartData['status']['en_stock'] }},
+                                {{ $chartData['status']['en_service'] }},
+                                {{ $chartData['status']['en_panne'] }},
+                                {{ $chartData['status']['en_reparation'] }},
+                                {{ $chartData['status']['reforme'] }}
+                            ],
+                            backgroundColor:[
+                                '#3b82f6', // Bleu
+                                '#22c55e', // Vert
+                                '#ef4444', // Rouge
+                                '#f97316', // Orange
+                                '#9ca3af'  // Gris
+                            ],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        cutout: '70%'
+                    }
+                });
+
+                // 2. Graphique Line (Évolution dans le temps)
+                const ctxTrend = document.getElementById('trendChart').getContext('2d');
+                new Chart(ctxTrend, {
+                    type: 'line',
+                    data: {
+                        labels: {!! json_encode($chartData['trendLabels']) !!},
+                        datasets:[{
+                            label: 'Nouveaux matériels',
+                            data: {!! json_encode($chartData['trendData']) !!},
+                            borderColor: '#16a34a',
+                            backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
 
     @endif
 

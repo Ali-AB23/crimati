@@ -7,14 +7,14 @@
         <div class="text-sm text-gray-500 mb-2">
             <a href="{{ route('tickets.index') }}" class="hover:underline">Reclamations</a> 
             <span class="mx-1">&gt;</span> 
-            <span class="text-gray-900 font-medium">New</span>
+            <span class="text-gray-900 font-medium">Nouvelle</span>
         </div>
         
         <div class="flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-900">Creer reclamation</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Nouvelle réclamation</h1>
             
             <a href="{{ route('tickets.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">
-                Back to list
+                Retour à la liste
             </a>
         </div>
     </div>
@@ -24,7 +24,7 @@
         <svg class="w-5 h-5 text-gray-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         <div>
             <h3 class="text-sm font-bold text-gray-900">Rule</h3>
-            <p class="text-sm text-gray-600 mt-1">You can create a ticket only for eligible materiel (assigned to you, your office, or shared locations of your org unit).</p>
+            <p class="text-sm text-gray-600 mt-1">Vous ne pouvez déclarer un incident que sur un matériel auquel vous avez accès (votre bureau, matériel personnel, ou espaces communs de votre service).</p>
         </div>
     </div>
 
@@ -49,8 +49,8 @@
                 
                 <!-- HEADER FORMULAIRE -->
                 <div class="p-6 md:p-8 border-b border-gray-100">
-                    <h2 class="text-lg font-bold text-gray-900">Ticket details</h2>
-                    <p class="text-sm text-gray-500 mt-1">Reference and due date are generated automatically after submit.</p>
+                    <h2 class="text-lg font-bold text-gray-900">Détails de la demande</h2>
+                    <p class="text-sm text-gray-500 mt-1">La référence et le délai de traitement seront générés automatiquement.</p>
                 </div>
 
                 <div class="p-6 md:p-8 space-y-8">
@@ -72,10 +72,10 @@
 
                         <!-- CARTE "SELECTED MATERIEL" DYNAMIQUE -->
                         <div x-show="selectedAsset" style="display: none;" class="mt-4 bg-gray-50 border border-gray-100 rounded-xl p-5">
-                            <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4">Selected Materiel</h4>
+                            <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4">Informations du matériel</h4>
                             <div class="grid grid-cols-2 gap-y-4 gap-x-6">
                                 <div>
-                                    <p class="text-xs text-gray-500 mb-1">Code inventaire</p>
+                                    <p class="text-xs text-gray-500 mb-1">Code d'inventaire</p>
                                     <p class="text-sm font-bold text-gray-900" x-text="selectedAsset?.inventory_code"></p>
                                 </div>
                                 <div>
@@ -107,7 +107,7 @@
 
                     <!-- CATÉGORIE TICKET -->
                     <div>
-                        <label for="ticket_category_id" class="block text-sm font-bold text-gray-900 mb-2">Categorie <span class="text-red-500">*</span></label>
+                        <label for="ticket_category_id" class="block text-sm font-bold text-gray-900 mb-2">Catégorie d'incident <span class="text-red-500">*</span></label>
                         <select name="ticket_category_id" id="ticket_category_id" required 
                                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                             <option value="" disabled selected>Sélectionner une catégorie...</option>
@@ -122,14 +122,14 @@
 
                     <!-- PRIORITÉ (Boutons Radios "Chips") -->
                     <div>
-                        <label class="block text-sm font-bold text-gray-900 mb-3">Priorite <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-bold text-gray-900 mb-3">Niveau d'urgence <span class="text-red-500">*</span></label>
                         <div class="flex flex-wrap gap-3">
                             
                             <!-- Low -->
                             <label class="cursor-pointer">
                                 <input type="radio" name="priority" value="low" class="peer sr-only" {{ old('priority') == 'low' ? 'checked' : '' }} required>
                                 <div class="px-5 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-600 peer-checked:bg-green-600 peer-checked:text-white peer-checked:border-green-600 hover:bg-gray-50 transition">
-                                    Low
+                                    Faible
                                 </div>
                             </label>
 
@@ -137,7 +137,7 @@
                             <label class="cursor-pointer">
                                 <input type="radio" name="priority" value="medium" class="peer sr-only" {{ old('priority') == 'medium' ? 'checked' : '' }}>
                                 <div class="px-5 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-600 peer-checked:bg-green-600 peer-checked:text-white peer-checked:border-green-600 hover:bg-gray-50 transition">
-                                    Medium
+                                    Moyen
                                 </div>
                             </label>
 
@@ -145,7 +145,7 @@
                             <label class="cursor-pointer">
                                 <input type="radio" name="priority" value="high" class="peer sr-only" {{ old('priority') == 'high' ? 'checked' : '' }}>
                                 <div class="px-5 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-600 peer-checked:bg-green-600 peer-checked:text-white peer-checked:border-green-600 hover:bg-gray-50 transition">
-                                    High
+                                    Élevé
                                 </div>
                             </label>
 
@@ -175,10 +175,10 @@
                 <!-- FOOTER (BOUTONS) -->
                 <div class="px-6 md:px-8 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
                     <a href="{{ route('tickets.index') }}" class="px-6 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition">
-                        Cancel
+                        Annuler
                     </a>
                     <button type="submit" class="px-6 py-2.5 bg-green-700 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-green-800 shadow-sm transition">
-                        Create ticket
+                        Envoyer la réclamation
                     </button>
                 </div>
 

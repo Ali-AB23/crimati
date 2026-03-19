@@ -47,18 +47,19 @@
                         <!-- Badge Priorité -->
                         <div class="flex items-center bg-white border border-gray-200 rounded-full px-3 py-1 shadow-sm">
                             <span class="h-2 w-2 rounded-full {{ $prioDot }} mr-2"></span>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-700">Priority: <span class="{{ $prioClass }}">{{ $ticket->priority->value }}</span></span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-700">Priorité : <span class="{{ $prioClass }}">{{ $ticket->priority->value }}</span></span>
                         </div>
 
                         <!-- Badge Statut -->
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $statusClass }}">
-                            Status: {{ str_replace('_', ' ', $ticket->status->value) }}
+                            Statut: {{ str_replace('_', ' ', $ticket->status->value) }}
                         </span>
+
                     </div>
                 </div>
                 
                 <div class="flex flex-wrap gap-2 sm:space-x-3 mt-2 sm:mt-0">
-                    <a href="{{ route('tickets.index') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm">Back to list</a>
+                    <a href="{{ route('tickets.index') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm">Retour à la liste</a>
                     
                     @if($canTreat && !in_array($ticket->status->value,[\App\Enums\TicketStatus::FERME->value, \App\Enums\TicketStatus::ANNULE->value]))
                         <!-- Bouton qui ouvre la modale de statut -->
@@ -80,7 +81,7 @@
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                     <div class="flex items-center space-x-2 mb-4">
                         <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        <h2 class="text-lg font-bold text-gray-900">Description</h2>
+                        <h2 class="text-lg font-bold text-gray-900">Description du problème</h2>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
                         <p class="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{{ $ticket->description }}</p>
@@ -88,65 +89,89 @@
                 </div>
 
                 <!-- COMMENTS SECTION -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div class="p-5 border-b border-gray-100 flex justify-between items-center">
+                <!-- COMMENTS SECTION (Style Conversation) -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+                    
+                    <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">
                         <div class="flex items-center space-x-2">
                             <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                            <h2 class="text-lg font-bold text-gray-900">Comments</h2>
+                            <h2 class="text-lg font-bold text-gray-900">Fil de discussion</h2>
                         </div>
-                        <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-0.5 rounded">{{ $ticket->comments->count() }} activities</span>
+                        <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-0.5 rounded">{{ $ticket->comments->count() }} message(s)</span>
                     </div>
                     
-                    <div class="p-6 space-y-6">
-                        <!-- Liste des commentaires -->
+                    <!-- Zone des messages (Avec hauteur max et scroll) -->
+                    <div class="p-6 space-y-6 max-h-[500px] overflow-y-auto bg-gray-50 flex flex-col">
+                        
                         @forelse($ticket->comments as $comment)
-                            <div class="flex space-x-4">
-                                <div class="shrink-0">
-                                    <img class="h-10 w-10 rounded-full object-cover border border-gray-200" 
-                                         src="https://ui-avatars.com/api/?name={{ urlencode(optional($comment->author->employee)->full_name ?? $comment->author->username) }}&background=f3f4f6&color=111827&bold=true" 
-                                         alt="">
-                                </div>
-                                <div>
-                                    <div class="flex items-center mb-1">
-                                        <span class="text-sm font-bold text-gray-900 mr-2">{{ optional($comment->author->employee)->full_name ?? $comment->author->username }}</span>
-                                        <span class="text-xs text-gray-400">{{ $comment->created_at->format('Y-m-d H:i') }}</span>
+                            @php
+                                // On vérifie si c'est MON message
+                                $isMe = Auth::id() === $comment->user_id;
+                                $authorName = optional($comment->author->employee)->full_name ?? $comment->author->username;
+                                $authorInitials = strtoupper(substr($authorName, 0, 2)); // ex: AS pour Administrateur Système
+                            @endphp
+
+                            <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }} w-full">
+                                
+                                <div class="flex {{ $isMe ? 'flex-row-reverse' : 'flex-row' }} items-end max-w-[85%] sm:max-w-[75%] gap-3">
+                                    
+                                    <!-- Avatar (Initials façon maquette) -->
+                                    {{-- <div class="shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm {{ $isMe ? 'bg-green-100 text-green-700' : 'bg-white border border-gray-200 text-gray-600 shadow-sm' }}">
+                                        {{ $authorInitials }}
+                                    </div> --}}
+
+                                    <!-- Bulle de message -->
+                                    <div class="flex flex-col {{ $isMe ? 'items-end' : 'items-start' }}">
+                                        
+                                        <!-- Nom et Date -->
+                                        <div class="flex items-baseline gap-2 mb-1 px-1">
+                                            <span class="text-xs font-bold text-gray-900">{{ $isMe ? 'Vous' : $authorName }}</span>
+                                            <span class="text-[10px] text-gray-400">{{ $comment->created_at->format('Y-m-d H:i') }}</span>
+                                        </div>
+
+                                        <!-- Le texte -->
+                                        <div class="px-4 py-2.5 rounded-2xl shadow-sm text-sm leading-relaxed {{ $isMe ? 'bg-green-700 text-white rounded-br-none' : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none' }}">
+                                            {{ $comment->body }}
+                                        </div>
                                     </div>
-                                    <p class="text-sm text-gray-600 leading-relaxed">{{ $comment->body }}</p>
                                 </div>
                             </div>
                         @empty
-                            <p class="text-sm text-gray-500 italic text-center">Aucun commentaire pour le moment.</p>
+                            <div class="flex flex-col items-center justify-center h-32 opacity-50">
+                                <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                <p class="text-sm text-gray-500 italic text-center">Aucun message pour le moment.<br>Soyez le premier à écrire !</p>
+                            </div>
                         @endforelse
+                    </div>
 
-                        <!-- Formulaire d'ajout de commentaire (Accessible à tous) -->
-                        <div class="pt-6 border-t border-gray-100">
+                    <!-- FORMULAIRE DE RÉPONSE -->
+                    <div class="p-5 border-t border-gray-100 bg-white shrink-0">
+                        @if(in_array($ticket->status->value,[\App\Enums\TicketStatus::FERME->value, \App\Enums\TicketStatus::ANNULE->value]))
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+                                <svg class="w-6 h-6 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                <p class="text-sm font-medium text-gray-600">Le fil de discussion est verrouillé.</p>
+                                <p class="text-xs text-gray-500 mt-1">Ce ticket a été {{ strtolower($ticket->status->value) }}. Vous ne pouvez plus y ajouter de messages.</p>
+                            </div>
+                        @else
+                            <h3 class="text-sm font-bold text-gray-900 mb-3">Ajouter une réponse</h3>
                             
-                            @if(in_array($ticket->status->value,[\App\Enums\TicketStatus::FERME->value, \App\Enums\TicketStatus::ANNULE->value]))
-                                <!-- Affichage si le ticket est verrouillé -->
-                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-                                    <svg class="w-6 h-6 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                    <p class="text-sm font-medium text-gray-600">Le fil de discussion est verrouillé.</p>
-                                    <p class="text-xs text-gray-500 mt-1">Ce ticket a été {{ strtolower($ticket->status->value) }}. Vous ne pouvez plus y ajouter de commentaires.</p>
-                                </div>
-                            @else
-                                <!-- Affichage du formulaire si le ticket est actif -->
-                                <h3 class="text-sm font-bold text-gray-900 mb-3">Add a comment</h3>
-                                
-                                @error('comment_error')
-                                    <div class="mb-3 text-xs font-bold text-red-600 bg-red-50 p-2 rounded">{{ $message }}</div>
-                                @enderror
+                            @error('comment_error')
+                                <div class="mb-3 text-xs font-bold text-red-600 bg-red-50 p-2 rounded">{{ $message }}</div>
+                            @enderror
 
-                                <form action="{{ route('ticket-comments.store', $ticket) }}" method="POST">
-                                    @csrf
-                                    <textarea name="body" rows="3" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 sm:text-sm mb-3" placeholder="Write a comment..."></textarea>
-                                    <div class="flex justify-end space-x-3">
-                                        <button type="reset" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm">Cancel</button>
-                                        <button type="submit" class="px-4 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-green-800 transition shadow-sm">Post comment</button>
+                            <form action="{{ route('ticket-comments.store', $ticket) }}" method="POST">
+                                @csrf
+                                <div class="relative">
+                                    <textarea name="body" rows="3" required class="w-full border-gray-200 rounded-xl shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm mb-3 resize-none bg-gray-50 p-4" placeholder="Saisissez votre message ici..."></textarea>
+                                    <div class="absolute bottom-6 right-3 flex space-x-2">
+                                        <button type="submit" class="p-2 bg-green-700 rounded-lg text-white hover:bg-green-800 transition shadow-sm" title="Envoyer">
+                                            <!-- rotate-[270deg] oriente l'avion vers le haut à gauche ! -->
+                                            <svg class="w-5 h-5 rotate-[90deg] -ml-0.5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                        </button>
                                     </div>
-                                </form>
-                            @endif
-
-                        </div>
+                                </div>
+                            </form>
+                        @endif
                     </div>
                 </div>
 
@@ -159,7 +184,7 @@
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                     <div class="flex items-center space-x-2 mb-6">
                         <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <h2 class="text-lg font-bold text-gray-900">Summary</h2>
+                        <h2 class="text-lg font-bold text-gray-900">Détails de la demande</h2>
                     </div>
 
                     <div class="space-y-4">
@@ -168,7 +193,7 @@
                             <span class="text-sm font-bold text-gray-900">{{ $ticket->reference }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-3 border-b border-gray-100">
-                            <span class="text-sm text-gray-500">Materiel:</span>
+                            <span class="text-sm text-gray-500">Matériel:</span>
                             <span class="text-sm font-bold text-gray-900">{{ optional($ticket->asset)->inventory_code ?? 'N/A' }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-3 border-b border-gray-100">
@@ -209,7 +234,7 @@
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                     <div class="flex items-center space-x-2 mb-4">
                         <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        <h2 class="text-lg font-bold text-gray-900">Quick Actions</h2>
+                        <h2 class="text-lg font-bold text-gray-900">Actions Rapides</h2>
                     </div>
                     
                     <div class="flex flex-col space-y-3">
@@ -218,7 +243,7 @@
                         @if(in_array($ticket->status->value,[\App\Enums\TicketStatus::OUVERT->value, \App\Enums\TicketStatus::ASSIGNE->value]))
                             <button @click="showAssignModal = true" class="flex justify-center items-center w-full px-4 py-2.5 bg-green-700 text-white rounded-lg text-sm font-bold hover:bg-green-800 transition shadow-sm">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-                                Assign ticket
+                                Assigner un technicien
                             </button>
                         @endif
                         
@@ -230,19 +255,19 @@
                         
                         <button @click="showStatusModal = true" class="flex justify-center items-center w-full px-4 py-2.5 rounded-lg text-sm font-bold transition shadow-sm {{ $isStatusBtnPrimary ? 'bg-green-700 text-white hover:bg-green-800' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
                             <svg class="w-4 h-4 mr-2 {{ $isStatusBtnPrimary ? 'text-white' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                            Change status
+                            Modifier le statut
                         </button>
                         
                         <!-- Bouton Date -->
                         <button @click="showDateModal = true" class="flex justify-center items-center w-full px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition shadow-sm">
                             <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            Edit due date
+                            Ajuster l'échéance
                         </button>
 
                         <div class="pt-2">
                             <button @click="showCancelModal = true" class="flex justify-center items-center w-full px-4 py-2.5 bg-white border border-red-200 text-red-600 rounded-lg text-sm font-bold hover:bg-red-50 transition shadow-sm">
                                 <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                Cancel ticket
+                                Annuler la réclamation
                             </button>
                         </div>
                     </div>

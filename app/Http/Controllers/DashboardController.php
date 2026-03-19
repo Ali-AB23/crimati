@@ -24,38 +24,58 @@ class DashboardController extends Controller
             'active_tickets' => 0,
             'late_tickets' => 0,
         ];
-
+        $chartData = null; 
         // 1. LOGIQUE POUR ADMIN & INVENTORISTE (Vue Globale)
         if (in_array($user->role->value,[UserRole::ADMIN_IT->value, UserRole::INVENTORISTE->value])) {
             
             $stats['total_assets'] = Asset::count();
+            $stats['broken_assets'] = Asset::whereIn('status',[AssetStatus::EN_PANNE->value, AssetStatus::EN_REPARATION->value])->count();
             
-            $stats['broken_assets'] = Asset::whereIn('status',[
-                AssetStatus::EN_PANNE->value, 
-                AssetStatus::EN_REPARATION->value
-            ])->count();
+            $stats['active_tickets'] = Ticket::whereIn('status',[TicketStatus::OUVERT->value, TicketStatus::ASSIGNE->value, TicketStatus::EN_COURS->value])->count();
+            $stats['late_tickets'] = Ticket::whereNotIn('status',[TicketStatus::RESOLU->value, TicketStatus::FERME->value, TicketStatus::ANNULE->value])
+                                           ->where('due_at', '<', now())->count();
 
-            $stats['active_tickets'] = Ticket::whereIn('status',[
-                TicketStatus::OUVERT->value, 
-                TicketStatus::ASSIGNE->value, 
-                TicketStatus::EN_COURS->value
-            ])->count();
-
-            $stats['late_tickets'] = Ticket::whereNotIn('status',[
-                TicketStatus::RESOLU->value, 
-                TicketStatus::FERME->value, 
-                TicketStatus::ANNULE->value
-            ])->where('due_at', '<', now())->count();
-
-            // --- NOUVEAU : Récupération des données pour les tableaux (Global) ---
+            // Récents tickets (Pour l'Admin uniquement dans la vue, mais on les charge ici)
             $recentTickets = Ticket::with(['asset', 'assignedTo.employee'])
                                    ->orderBy('created_at', 'desc')
                                    ->limit(5)->get();
 
-            $attentionAssets = Asset::with(['type.category', 'currentLocation', 'currentEmployee'])
-                                    ->whereIn('status',[AssetStatus::EN_PANNE->value, AssetStatus::EN_REPARATION->value])
-                                    ->limit(5)->get();
+            // =========================================================
+            // 📊 DONNÉES EXACTES POUR LES GRAPHIQUES (Admin & Inv)
+            // =========================================================
+            
+            // 1. Comptage exact en base de données par statut
+            $statusChart =[
+                'en_stock'      => Asset::where('status', AssetStatus::EN_STOCK->value)->count(),
+                'en_service'    => Asset::where('status', AssetStatus::EN_SERVICE->value)->count(),
+                'en_panne'      => Asset::where('status', AssetStatus::EN_PANNE->value)->count(),
+                'en_reparation' => Asset::where('status', AssetStatus::EN_REPARATION->value)->count(),
+                'reforme'       => Asset::where('status', AssetStatus::REFORME->value)->count(),
+            ];
 
+            // 2. Évolution sur 6 mois (Dates en Français)
+            \Carbon\Carbon::setLocale('fr'); // Force le français pour les mois
+            $trendLabels =[];
+            $trendData =[];
+            
+            for ($i = 5; $i >= 0; $i--) {
+                $month = now()->subMonths($i);
+                // Ex: "Oct 2025" -> "Octobre 2025"
+                $trendLabels[] = ucfirst($month->translatedFormat('M Y')); 
+                
+                $trendData[] = Asset::whereMonth('created_at', $month->month)
+                                    ->whereYear('created_at', $month->year)
+                                    ->count();
+            }
+
+            $chartData =[
+                'status' => $statusChart,
+                'trendLabels' => $trendLabels,
+                'trendData' => $trendData
+            ];
+            
+            // On vide cette variable car on a supprimé le tableau "Assets needing attention"
+            $attentionAssets = collect();
         } 
         // 2. LOGIQUE POUR L'EMPLOYÉ (Vue Restreinte à ses données)
         // 2. LOGIQUE POUR L'EMPLOYÉ (Vue Restreinte à ses données)
@@ -136,6 +156,5 @@ class DashboardController extends Controller
         }
 
         // On renvoie la vue EXACTE avec les 3 variables !
-        return view('dashboard.dashboard', compact('stats', 'recentTickets', 'attentionAssets'));
-    }
+        return view('dashboard.dashboard', compact('stats', 'recentTickets', 'attentionAssets', 'chartData'));    }
 }

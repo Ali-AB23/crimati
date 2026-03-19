@@ -13,18 +13,18 @@
 
     <!-- EN-TÊTE -->
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Materiels</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Matériels</h1>
         
         <!-- Boutons d'action (Admin/Inventoriste uniquement) -->
         @if($isAdminOrInv)
         <div class="flex space-x-3">
             <a href="{{ route('import.upload') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">
                 <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                Import Excel
+                Importer Excel
             </a>
             <a href="{{ route('assets.create') }}" class="inline-flex items-center px-4 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-800 shadow-sm transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                New materiel
+                Nouveau matériel
             </a>
         </div>
         @endif
@@ -34,7 +34,7 @@
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6">
         <div class="px-5 py-4 border-b border-gray-100 flex items-center">
             <svg class="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-            <h2 class="text-sm font-bold text-gray-900">Search and filters</h2>
+            <h2 class="text-sm font-bold text-gray-900">Recherche et filtres</h2>
         </div>
         
         <div class="p-5">
@@ -43,7 +43,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
                     <!-- Code Inventaire -->
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Code Inventaire</label>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Code d'inventaire</label>
                         <input type="text" name="code" value="{{ request('code') }}" placeholder="Ex: 066/CRI/25" class="w-full border-gray-300 rounded-lg text-sm focus:border-green-500 focus:ring-green-500 shadow-sm">
                     </div>
 
@@ -75,9 +75,9 @@
 
                     <!-- Catégorie -->
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Categorie</label>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Catégorie</label>
                         <select name="category_id" class="w-full border-gray-300 rounded-lg text-sm text-gray-600 focus:border-green-500 focus:ring-green-500 shadow-sm">
-                            <option value="">Toutes les categories</option>
+                            <option value="">Toutes les catégories</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
                                     {{ $category->name }}
@@ -102,10 +102,10 @@
 
                 <div class="flex justify-end space-x-3 pt-2">
                     <a href="{{ route('assets.index') }}" class="px-6 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">
-                        Reset
+                        Réinitialiser
                     </a>
                     <button type="submit" class="px-6 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-800 shadow-sm transition">
-                        Search
+                        Rechercher
                     </button>
                 </div>
             </form>
@@ -117,11 +117,11 @@
         
         <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white">
             <div class="flex items-center space-x-3">
-                <h2 class="text-lg font-bold text-gray-900">Materiels list</h2>
-                <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-0.5 rounded">{{ $assets->total() }} total</span>
+                <h2 class="text-lg font-bold text-gray-900">Liste des matériels</h2>
+                <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-0.5 rounded">{{ $assets->total() }} au total</span>
             </div>
             <div class="text-sm text-gray-500">
-                Showing {{ $assets->firstItem() ?? 0 }}-{{ $assets->lastItem() ?? 0 }} of {{ $assets->total() }} items
+                Affichage de {{ $assets->firstItem() ?? 0 }}-{{ $assets->lastItem() ?? 0 }} sur {{ $assets->total() }} résultats
             </div>
         </div>
         
@@ -173,16 +173,16 @@
                                     {{ $asset->currentEmployee->full_name }}
                                 </span>
                             @else
-                                <span class="text-gray-400">Non affecte</span>
+                                <span class="text-gray-400">Non affecté</span>
                             @endif
                         </td>
                         
                         <td class="p-5 text-sm font-medium text-right space-x-3">
-                            <a href="{{ route('assets.show', $asset->id) }}" class="text-green-700 hover:text-green-900">Voir</a>
+                            <a href="{{ route('assets.show', $asset->id) }}" class="text-green-700 hover:text-green-900">Consulter</a>
                             
                             @if($isAdminOrInv)
                                 <a href="{{ route('assets.edit', $asset->id) }}" class="text-green-700 hover:text-green-900">Modifier</a>
-                                <a href="{{ route('assets.show', $asset->id) }}" class="text-green-700 hover:text-green-900" title="Allez sur la fiche pour déplacer">Deplacer</a>
+                                <a href="{{ route('assets.show', $asset->id) }}" class="text-green-700 hover:text-green-900" title="Allez sur la fiche pour déplacer">Déplacer</a>
                             @endif
                         </td>
                     </tr>
@@ -192,7 +192,7 @@
                             <div class="flex flex-col items-center">
                                 <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                                 <span class="text-lg font-medium text-gray-900">Aucun matériel trouvé</span>
-                                <p class="text-sm text-gray-500 mt-1">Modifiez vos filtres ou ajoutez un nouveau matériel.</p>
+                                <p class="text-sm text-gray-500 mt-1">Modifiez vos filtres ou ajoutez un nouveau matériel au parc.</p>
                             </div>
                         </td>
                     </tr>

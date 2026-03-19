@@ -19,8 +19,8 @@
                         <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
                     
-                    <h3 class="text-lg font-bold text-gray-900" id="modal-title">Delete Asset</h3>
-                    <p class="text-sm text-gray-500 mt-2 mb-2">Are you sure you want to delete asset <strong>{{ $asset->inventory_code }}</strong>? This action cannot be undone.</p>
+                    <h3 class="text-lg font-bold text-gray-900" id="modal-title">Supprimer le matériel</h3>
+                    <p class="text-sm text-gray-500 mt-2 mb-2">Êtes-vous sûr de vouloir supprimer le matériel <strong>{{ $asset->inventory_code }}</strong> ? Cette action est irréversible.</p>
                 </div>
                 
                 <!-- Boutons responsives : s'empilent sur mobile (flex-col), côte à côte sur sm (sm:flex-row) -->
@@ -29,11 +29,11 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent px-4 py-2 bg-red-600 text-base font-bold text-white shadow-sm hover:bg-red-700 focus:outline-none sm:text-sm transition">
-                            Yes, delete it
+                            Oui, supprimer
                         </button>
                     </form>
                     <button type="button" @click="showDeleteModal = false" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 px-4 py-2 bg-white text-base font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:text-sm transition">
-                        Cancel
+                        Annuler
                     </button>
                 </div>
 

@@ -1,26 +1,47 @@
-<header class="h-20 bg-white border-b border-gray-200 flex items-center justify-between lg:justify-end px-4 sm:px-6 lg:px-8 z-20 relative">
+<!-- Enlevé le lg:justify-end, on garde just justify-between pour avoir Gauche et Droite -->
+<header class="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 lg:px-8 z-20 relative w-full">
     
-    <!-- BOUTON HAMBURGER (Mobile & Tablette uniquement) -->
-    <button @click="sidebarOpen = true" class="lg:hidden p-2 -ml-2 mr-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg focus:outline-none">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-    </button>
+    <!-- ========================================== -->
+    <!-- PARTIE GAUCHE : Boutons de la Sidebar      -->
+    <!-- ========================================== -->
+    <div class="flex items-center">
+        <!-- BOUTON HAMBURGER (Mobile & Tablette : Ouvre/Ferme le menu volant) -->
+        <button @click="sidebarOpen = true" class="lg:hidden p-2 -ml-2 mr-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
 
+        <!-- BOUTON MENU DESKTOP (Grand écran : Réduit/Agrandit la sidebar) -->
+        <button @click="sidebarMini = !sidebarMini" class="hidden lg:block p-2 -ml-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg focus:outline-none transition">
+            <!-- L'icône change selon l'état -->
+            <svg x-show="!sidebarMini" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+            <svg x-show="sidebarMini" style="display: none;" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- PARTIE DROITE : Notifications & Profil     -->
+    <!-- ========================================== -->
     <div class="flex items-center space-x-3 sm:space-x-5">
         
-        <!-- MENU DES NOTIFICATIONS -->
+        <!-- MENU DES NOTIFICATIONS (Custom Alpine Component) -->
         @php
             $notifications = Auth::user()->notifications()->take(5)->get();
             $unreadCount = Auth::user()->unreadNotifications()->count();
         @endphp
 
+        <!-- On gère l'ouverture (open) et les onglets (tab) nous-mêmes ! -->
         <div x-data="{ open: false, tab: 'all' }" class="relative" @click.outside="open = false">
+            
+            <!-- TRIGGER (La Cloche) -->
             <button @click="open = !open" class="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full focus:outline-none transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                
                 @if($unreadCount > 0)
                     <span class="absolute top-1.5 right-1.5 block h-2.5 w-2.5 rounded-full bg-blue-500 ring-2 ring-white"></span>
                 @endif
             </button>
 
+            <!-- CONTENT (La fenêtre de notifications) -->
             <div x-show="open" 
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 scale-95 translate-y-2"
@@ -31,7 +52,7 @@
                  class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-100 z-50 flex flex-col max-h-[80vh]" 
                  style="display: none;">
                 
-                <!-- Header Notifs -->
+                <!-- Header de la modale Notifs -->
                 <div class="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-white shrink-0 rounded-t-lg">
                     <h3 class="text-base font-bold text-gray-900">Notifications</h3>
                     <form action="{{ route('notifications.markAllRead') }}" method="POST">
@@ -40,7 +61,7 @@
                     </form>
                 </div>
 
-                <!-- Tabs -->
+                <!-- Les Tabs (All / Unread) -->
                 <div class="px-4 py-2 bg-white shrink-0">
                     <div class="flex bg-gray-100 rounded-lg p-1">
                         <button type="button" @click="tab = 'all'" :class="tab === 'all' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'" class="flex-1 py-1.5 text-xs font-bold rounded-md transition">All</button>
@@ -48,10 +69,11 @@
                     </div>
                 </div>
 
-                <!-- Liste -->
+                <!-- Liste des notifications (Scrollable) -->
                 <div class="flex-1 overflow-y-auto overflow-x-hidden bg-white">
                     @forelse($notifications as $notification)
-                        <div x-show="tab === 'all' || (tab === 'unread' && {{ is_null($notification->read_at) ? 'true' : 'false' }})" class="group block px-4 py-4 hover:bg-gray-50 transition border-b border-gray-50 relative">
+                        <div x-show="tab === 'all' || (tab === 'unread' && {{ is_null($notification->read_at) ? 'true' : 'false' }})" class="group relative block px-4 py-4 hover:bg-gray-50 transition border-b border-gray-50">
+                            
                             <div class="flex items-start space-x-4">
                                 @php
                                     $iconClass = 'bg-gray-100 text-gray-600';
@@ -74,6 +96,7 @@
                                 <div class="flex-1 min-w-0 pr-8">
                                     <p class="text-sm font-bold text-gray-900 truncate">{{ $notification->data['title'] ?? 'Notification' }}</p>
                                     <p class="text-sm text-gray-600 mt-0.5 leading-snug">{{ $notification->data['message'] ?? '' }}</p>
+                                    
                                     <div class="mt-2 flex items-center gap-2">
                                         <span class="text-[10px] text-gray-500">Ticket: {{ $notification->data['reference'] ?? 'N/A' }}</span>
                                         @if(isset($notification->data['status_badge']))
@@ -92,7 +115,9 @@
                                         <span class="h-2 w-2 bg-green-500 rounded-full mt-2"></span>
                                     @endif
                                 </div>
-                                <a href="{{ $notification->data['url'] ?? '#' }}" class="absolute inset-0"></a>
+                                
+                                <!-- Lien cliquable -->
+                                <a href="{{ $notification->data['url'] ?? '#' }}" class="absolute inset-0 z-10"></a>
                             </div>
                         </div>
                     @empty
@@ -104,12 +129,14 @@
                 </div>
 
                 <!-- Footer (View All) -->
-                <div class="p-3 border-t border-gray-100 bg-gray-50 shrink-0 rounded-b-lg">
-                    <a href="{{ route('notifications.index') }}" class="block w-full py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 text-center hover:bg-gray-50 transition shadow-sm">View all</a>
+                <div class="p-3 border-t border-gray-100 bg-gray-50 shrink-0 rounded-b-lg relative z-20">
+                    <a href="{{ route('notifications.index') }}" class="block w-full py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 text-center hover:bg-gray-50 transition shadow-sm relative z-20">View all</a>
                 </div>
+
             </div>
         </div>
 
+        <!-- Ligne Séparatrice -->
         <div class="hidden sm:block h-8 border-l border-gray-200"></div>
 
         <!-- DROPDOWN PROFIL -->

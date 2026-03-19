@@ -26,17 +26,17 @@
 
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col p-6 md:p-8">
                 
-                <h2 class="text-lg font-bold text-gray-900 mb-6">Materiel details</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Détails du matériel</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-bold text-gray-900 mb-1">Code inventaire *</label>
+                        <label class="block text-sm font-bold text-gray-900 mb-1">Code d'inventaire <span class="text-red-500">*</label>
                         <!-- Code inventaire souvent bloqué en édition pour la traçabilité, mais on le laisse modifiable ici -->
                         <input type="text" name="inventory_code" value="{{ old('inventory_code', $asset->inventory_code) }}" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-900 mb-1">Type materiel *</label>
+                        <label class="block text-sm font-bold text-gray-900 mb-1">Type de matériel <span class="text-red-500">*</label>
                         <select name="asset_type_id" x-model="selectedTypeId" @change="updateSchema()" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                             @foreach($assetTypes as $type)
                                 <option value="{{ $type->id }}">{{ $type->name }}</option>
@@ -45,7 +45,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-900 mb-1">Statut *</label>
+                        <label class="block text-sm font-bold text-gray-900 mb-1">Statut <span class="text-red-500">*</label>
                         <select name="status" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                             @foreach(\App\Enums\AssetStatus::cases() as $status)
                                 <option value="{{ $status->value }}" {{ old('status', $asset->status->value) == $status->value ? 'selected' : '' }}>
@@ -56,7 +56,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-900 mb-1">Localisation *</label>
+                        <label class="block text-sm font-bold text-gray-900 mb-1">Localisation <span class="text-red-500">*</label>
                         <select name="current_location_id" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                             @foreach($locations as $location)
                                 <option value="{{ $location->id }}" {{ old('current_location_id', $asset->current_location_id) == $location->id ? 'selected' : '' }}>
@@ -67,9 +67,9 @@
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-bold text-gray-900 mb-1">Affecte a</label>
+                        <label class="block text-sm font-bold text-gray-900 mb-1">Affecté à</label>
                         <select name="current_employee_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
-                            <option value="">Non affecte</option>
+                            <option value="">Non affecté</option>
                             @foreach($employees as $employee)
                                 <option value="{{ $employee->id }}" {{ old('current_employee_id', $asset->current_employee_id) == $employee->id ? 'selected' : '' }}>{{ $employee->full_name }}</option>
                             @endforeach
@@ -79,7 +79,7 @@
 
                 <!-- SPECS DYNAMIQUES PRÉ-REMPLIES -->
                 <div class="mt-10 mb-4 border-t border-gray-100 pt-6">
-                    <h2 class="text-lg font-bold text-gray-900 mb-4">Specs</h2>
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">Caractéristiques techniques</h2>
                     <div x-show="Object.keys(schema).length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 border border-gray-100 rounded-xl">
                         <template x-for="(rules, key) in schema" :key="key">
                             <div>

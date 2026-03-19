@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
 
 class LoginRequest extends FormRequest
 {
@@ -40,31 +41,43 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // =========================================================
-        // 🚀 SÉCURITÉ MÉTIER : Vérification du statut Actif/Inactif
-        // =========================================================
-        // On cherche l'utilisateur dans la base de données
-        $user = User::where('username', $this->input('username'))->first();
+        $loginInput = $this->input('username'); // Peut être le username OU le matricule
+        $password = $this->input('password');
 
-        // S'il existe MAIS qu'il est inactif (active == false ou 0)
-        if ($user && ! $user->active) {
-            // On compte quand même ça comme une tentative échouée pour la sécurité anti-spam
+        // 1. RECHERCHE MULTI-CHAMPS (Users + Employees)
+        $user = User::where('username', $loginInput)
+            ->orWhereHas('employee', function ($query) use ($loginInput) {
+                $query->where('matricule', $loginInput);
+            })->first();
+
+        // 2. L'utilisateur n'existe pas du tout
+        if (! $user) {
             RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'username' => trans('auth.failed'), // "Identifiants incorrects"
+            ]);
+        }
 
-            // On rejette la connexion avec un message très explicite pour l'employé
+        // =========================================================
+        // 🚀 SÉCURITÉ MÉTIER CONSERVÉE : Vérification du statut Actif/Inactif
+        // =========================================================
+        if (! $user->active) {
+            RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
                 'username' => "Votre compte a été désactivé. Veuillez contacter l'administrateur IT.",
             ]);
         }
 
-        // Si l'utilisateur est actif, on passe à la vérification standard du mot de passe
-        if (! Auth::attempt($this->only('username', 'password'), $this->boolean('remember'))) {
+        // 3. VÉRIFICATION DU MOT DE PASSE
+        if (! Hash::check($password, $user->password)) {
             RateLimiter::hit($this->throttleKey());
-
             throw ValidationException::withMessages([
-                'username' => trans('auth.failed'),
+                'username' => trans('auth.failed'), // Ne jamais dire si c'est le mdp ou l'identifiant qui est faux (Sécurité)
             ]);
         }
+
+        // 4. CONNEXION RÉUSSIE
+        Auth::login($user, $this->boolean('remember'));
 
         RateLimiter::clear($this->throttleKey());
     }

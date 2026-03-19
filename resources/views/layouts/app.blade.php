@@ -14,8 +14,8 @@
 </head>
 
 <!-- Alpine.js gère l'état 'sidebarOpen' pour toute l'application -->
-<body x-data="{ sidebarOpen: false }" class="font-sans antialiased text-gray-900 bg-gray-50 flex h-screen overflow-hidden">
-    
+{{-- <body x-data="{ sidebarOpen: false }" class="font-sans antialiased text-gray-900 bg-gray-50 flex h-screen overflow-hidden"> --}}
+<body x-data="{ sidebarOpen: false, sidebarMini: false }" class="font-sans antialiased text-gray-900 bg-gray-50 flex h-screen overflow-hidden">   
     <!-- L'OVERLAY (Fond noir semi-transparent) : Apparaît uniquement sur mobile quand le menu est ouvert -->
     <div x-show="sidebarOpen" 
          x-transition:enter="transition-opacity ease-linear duration-300"

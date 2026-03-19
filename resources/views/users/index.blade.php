@@ -11,7 +11,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Utilisateurs</h1>
             
             <a href="{{ route('users.create') }}" class="inline-flex items-center px-4 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-800 shadow-sm transition">
-                Add user
+                Nouvel utilisateur
             </a>
         </div>
     </div>
@@ -31,13 +31,13 @@
     <!-- ZONE DE RECHERCHE -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6">
         <div class="p-5">
-            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Search and filters</h2>
+            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Recherche et filtres</h2>
             
             <form action="{{ route('users.index') }}" method="GET" class="flex flex-col lg:flex-row gap-4 items-end">
                 
                 <!-- Query (Matricule, Nom, Username) -->
                 <div class="w-full lg:w-1/2">
-                    <label class="block text-[11px] font-bold text-gray-500 mb-2">Query</label>
+                    <label class="block text-[11px] font-bold text-gray-500 mb-2">Recherche</label>
                     <input type="text" name="query" value="{{ request('query') }}" placeholder="Amina ou 12345" class="w-full border-gray-300 rounded-lg text-sm focus:border-green-500 shadow-sm">
                 </div>
 
@@ -45,7 +45,7 @@
                 <div class="w-full lg:w-1/4">
                     <label class="block text-[11px] font-bold text-gray-500 mb-2">Role</label>
                     <select name="role" class="w-full border-gray-300 rounded-lg text-sm focus:border-green-500 shadow-sm text-gray-600">
-                        <option value="">All</option>
+                        <option value="">Tous</option>
                         @foreach($roles as $role)
                             <option value="{{ $role->value }}" {{ request('role') == $role->value ? 'selected' : '' }}>{{ str_replace('_', ' ', $role->value) }}</option>
                         @endforeach
@@ -57,14 +57,14 @@
                     <label class="block text-[11px] font-bold text-gray-500 mb-2">Active</label>
                     <select name="active" class="w-full border-gray-300 rounded-lg text-sm focus:border-green-500 shadow-sm text-gray-600">
                         <option value="">All</option>
-                        <option value="1" {{ request('active') === '1' ? 'selected' : '' }}>Active</option>
-                        <option value="0" {{ request('active') === '0' ? 'selected' : '' }}>Inactive</option>
+                        <option value="1" {{ request('active') === '1' ? 'selected' : '' }}>Activf</option>
+                        <option value="0" {{ request('active') === '0' ? 'selected' : '' }}>Inactif</option>
                     </select>
                 </div>
 
                 <div class="flex space-x-3 w-full lg:w-auto">
-                    <button type="submit" class="w-full sm:w-auto px-6 py-2 bg-green-700 text-white rounded-lg text-sm font-bold hover:bg-green-800 shadow-sm transition">Search</button>
-                    <a href="{{ route('users.index') }}" class="w-full sm:w-auto px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 text-center shadow-sm transition">Reset</a>
+                    <button type="submit" class="w-full sm:w-auto px-6 py-2 bg-green-700 text-white rounded-lg text-sm font-bold hover:bg-green-800 shadow-sm transition">Rechercher</button>
+                    <a href="{{ route('users.index') }}" class="w-full sm:w-auto px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 text-center shadow-sm transition">Réinitialiser</a>
                 </div>
             </form>
         </div>
@@ -73,9 +73,9 @@
     <!-- TABLEAU DES UTILISATEURS -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
         <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-            <h2 class="text-lg font-bold text-gray-900">Users list</h2>
+            <h2 class="text-lg font-bold text-gray-900">Liste des utilisateurs</h2>
             <div class="text-sm text-gray-500">
-                Showing {{ $users->firstItem() ?? 0 }}-{{ $users->lastItem() ?? 0 }} of {{ $users->total() }}
+               Affichage de {{ $users->firstItem() ?? 0 }} à {{ $users->lastItem() ?? 0 }} sur {{ $users->total() }}
             </div>
         </div>
 
@@ -84,12 +84,12 @@
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-100">
                         <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Matricule</th>
-                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Full name</th>
-                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Username</th>
+                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Nom complet</th>
+                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Identifiant</th>
                         <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Role</th>
-                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Org unit</th>
-                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Office location</th>
-                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">Active</th>
+                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Unité org.</th>
+                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Bureau</th>
+                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">Statut</th>
                         <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                     </tr>
                 </thead>
@@ -139,19 +139,19 @@
                             @if($u->active)
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">
                                     <span class="w-1.5 h-1.5 mr-1.5 bg-green-500 rounded-full"></span>
-                                    Active
+                                    Actif
                                 </span>
                             @else
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">
                                     <span class="w-1.5 h-1.5 mr-1.5 bg-red-500 rounded-full"></span>
-                                    Inactive
+                                    Inactif
                                 </span>
                             @endif
                         </td>
                         
                        <!-- ACTIONS -->
                         <td class="p-4 text-sm font-medium text-right flex items-center justify-end space-x-4">
-                            <a href="{{ route('users.edit', $u) }}" class="text-blue-600 hover:text-blue-800">Edit</a>
+                            <a href="{{ route('users.edit', $u) }}" class="text-blue-600 hover:text-blue-800">Modifier</a>
                             
                             <!-- TOGGLE SWITCH VISUEL POUR LA MODALE -->
                             <div class="flex items-center" title="Activer/Désactiver l'accès">

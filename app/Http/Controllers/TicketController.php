@@ -74,7 +74,7 @@ class TicketController extends Controller
         }
 
         // 4. Exécution avec pagination
-        $tickets = $query->orderBy('created_at', 'desc')->paginate(15);
+        $tickets = $query->orderBy('created_at', 'desc')->paginate(7);
 
         // 5. Données pour les listes déroulantes (Selects)
         $statuses = TicketStatus::cases();

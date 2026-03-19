@@ -41,7 +41,7 @@
             
             <!-- BLOC 1 : UPLOAD FILE -->
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
-                <h2 class="text-lg font-bold text-gray-900 mb-4">Upload file</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Téléverser un fichier</h2>
                 
                 <form action="{{ route('import.process') }}" method="POST" enctype="multipart/form-data" id="upload-form">
                     @csrf
@@ -54,9 +54,9 @@
                             </svg>
                             <div class="flex text-sm text-gray-600 justify-center">
                                 <span class="relative font-bold text-green-700 hover:text-green-800">
-                                    Choose file
+                                    Choisir un fichier
                                 </span>
-                                <p class="pl-1">or drag and drop .xlsx file here</p>
+                                <p class="pl-1">ou glisser-déposer un fichier .xlsx ici</p>
                             </div>
                         </div>
                         <!-- Le vrai input file, invisible -->
@@ -68,11 +68,11 @@
                         <div class="flex items-center text-sm text-gray-600">
                             <!-- Icône de succès (verte) qui apparaît quand un fichier est choisi -->
                             <svg id="success-icon" class="w-5 h-5 text-green-500 mr-2 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                            <span id="file-name">Selected: none</span>
+                            <span id="file-name">Sélectionné : aucun</span>
                         </div>
                         
                         <button type="submit" id="submit-btn" disabled class="px-6 py-2.5 bg-green-700 text-white font-bold rounded-lg text-sm shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-800">
-                            Validate and import
+                            Valider et importer
                         </button>
                     </div>
                 </form>
@@ -80,48 +80,48 @@
 
             <!-- BLOC 2 : REQUIRED COLUMNS -->
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
-                <h2 class="text-lg font-bold text-gray-900 mb-6">Required columns</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Colonnes requises</h2>
                 
                 <div class="overflow-x-auto border border-gray-200 rounded-lg">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Column</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Required</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Colonne</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Requis</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200 text-sm">
                             <tr>
                                 <td class="px-6 py-4 font-mono text-gray-700">inventory_code</td>
-                                <td class="px-6 py-4 font-bold text-green-600">Yes</td>
+                                <td class="px-6 py-4 font-bold text-green-600">Oui</td>
                             </tr>
                             <tr>
                                 <td class="px-6 py-4 font-mono text-gray-700">asset_type</td>
-                                <td class="px-6 py-4 font-bold text-green-600">Yes</td>
+                                <td class="px-6 py-4 font-bold text-green-600">Oui</td>
                             </tr>
                             <tr>
                                 <td class="px-6 py-4 font-mono text-gray-700">status</td>
-                                <td class="px-6 py-4 text-gray-500">Optional</td>
+                                <td class="px-6 py-4 text-gray-500">Optionnel</td>
                             </tr>
                             <tr>
                                 <td class="px-6 py-4 font-mono text-gray-700">location</td>
-                                <td class="px-6 py-4 text-gray-500">Optional</td>
+                                <td class="px-6 py-4 text-gray-500">Optionnel</td>
                             </tr>
                             <tr>
                                 <td class="px-6 py-4 font-mono text-gray-700">brand</td>
-                                <td class="px-6 py-4 text-gray-500">Optional</td>
+                                <td class="px-6 py-4 text-gray-500">Optionnel</td>
                             </tr>
                             <tr>
                                 <td class="px-6 py-4 font-mono text-gray-700">model</td>
-                                <td class="px-6 py-4 text-gray-500">Optional</td>
+                                <td class="px-6 py-4 text-gray-500">Optionnel</td>
                             </tr>
                             <tr>
                                 <td class="px-6 py-4 font-mono text-gray-700">serial_number</td>
-                                <td class="px-6 py-4 text-gray-500">Optional</td>
+                                <td class="px-6 py-4 text-gray-500">Optionnel</td>
                             </tr>
                             <tr>
                                 <td class="px-6 py-4 font-mono text-gray-700">notes</td>
-                                <td class="px-6 py-4 text-gray-500">Optional</td>
+                                <td class="px-6 py-4 text-gray-500">Optionnel</td>
                             </tr>
                         </tbody>
                     </table>
@@ -130,23 +130,23 @@
 
             <!-- BLOC 3 : NOTES -->
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8 mb-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-4">Notes</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Remarques</h2>
                 <ul class="space-y-3 text-sm text-gray-600 list-inside">
                     <li class="flex items-start">
                         <span class="mr-2 mt-1.5 h-1.5 w-1.5 bg-gray-400 rounded-full shrink-0"></span>
-                        Duplicates by <code class="bg-gray-100 px-1 rounded mx-1">inventory_code</code> are rejected.
+                        Les doublons basés sur le <code class="bg-gray-100 px-1 rounded mx-1">inventory_code</code> sont rejetés.
                     </li>
                     <li class="flex items-start">
                         <span class="mr-2 mt-1.5 h-1.5 w-1.5 bg-gray-400 rounded-full shrink-0"></span>
-                        Import creates assets only.
+                        L'importation crée uniquement des matériels.
                     </li>
                     <li class="flex items-start">
                         <span class="mr-2 mt-1.5 h-1.5 w-1.5 bg-gray-400 rounded-full shrink-0"></span>
-                        No ticket import.
+                        Pas d'importation de tickets.
                     </li>
                     <li class="flex items-start">
                         <span class="mr-2 mt-1.5 h-1.5 w-1.5 bg-gray-400 rounded-full shrink-0"></span>
-                        Statuses allowed: 
+                        Statuts autorisés :
                         <span class="flex flex-wrap gap-1 ml-2 mt-0.5">
                             <code class="bg-gray-100 px-1.5 py-0.5 text-xs rounded text-gray-600">en_stock</code>, 
                             <code class="bg-gray-100 px-1.5 py-0.5 text-xs rounded text-gray-600">en_service</code>, 
@@ -162,34 +162,34 @@
         <!-- COLONNE DROITE (Rules Summary) -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sticky top-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-6">Rules summary</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Résumé des règles</h2>
                 
                 <div class="space-y-4">
                     <div class="flex items-start">
                         <div class="flex-shrink-0 mt-0.5">
                             <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        <p class="ml-3 text-sm text-gray-700">File type: .xlsx</p>
+                        <p class="ml-3 text-sm text-gray-700">Format de fichier : .xlsx</p>
                     </div>
                     
                     <div class="flex items-start">
                         <div class="flex-shrink-0 mt-0.5">
                             <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        <p class="ml-3 text-sm text-gray-700">Unique inventory_code required</p>
+                        <p class="ml-3 text-sm text-gray-700">Code d'inventaire (inventory_code) unique requis</p>
                     </div>
                     
                     <div class="flex items-start">
                         <div class="flex-shrink-0 mt-0.5">
                             <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        <p class="ml-3 text-sm text-gray-700">Report after import (imported / rejected + reason)</p>
+                        <p class="ml-3 text-sm text-gray-700">Rapport après import (importés / rejetés + raison)</p>
                     </div>
                 </div>
 
                 <div class="mt-8 bg-gray-50 border border-gray-100 rounded-lg p-4">
-                    <h4 class="text-sm font-bold text-gray-900 mb-1">Tip:</h4>
-                    <p class="text-sm text-gray-500 leading-relaxed">Start with minimal columns then enrich later.</p>
+                    <h4 class="text-sm font-bold text-gray-900 mb-1">Astuce :</h4>
+                    <p class="text-sm text-gray-500 leading-relaxed">Commencez avec les colonnes minimales, puis enrichissez les données plus tard.</p>
                 </div>
             </div>
         </div>
@@ -203,12 +203,12 @@
             const successIcon = document.getElementById('success-icon');
             
             if (input.files && input.files[0]) {
-                fileNameDisplay.textContent = 'Selected: ' + input.files[0].name;
+                fileNameDisplay.textContent = 'Sélectionné : ' + input.files[0].name;
                 fileNameDisplay.classList.add('text-gray-900', 'font-medium');
                 submitBtn.disabled = false;
                 successIcon.classList.remove('hidden');
             } else {
-                fileNameDisplay.textContent = 'Selected: none';
+                fileNameDisplay.textContent = 'Sélectionné : aucun';
                 fileNameDisplay.classList.remove('text-gray-900', 'font-medium');
                 submitBtn.disabled = true;
                 successIcon.classList.add('hidden');

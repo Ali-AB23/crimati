@@ -5,15 +5,15 @@
     <!-- BREADCRUMB & HEADER -->
     <div class="mb-6">
         <div class="text-sm text-gray-500 mb-2">
-            <a href="{{ route('assets.index') }}" class="hover:underline">Materiels</a> 
+            <a href="{{ route('assets.index') }}" class="hover:underline">Matériels</a> 
             <span class="mx-1">&gt;</span> 
-            <span class="text-gray-900 font-medium">New</span>
+            <span class="text-gray-900 font-medium">Nouveau</span>
         </div>
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <h1 class="text-2xl font-bold text-gray-900">New materiel</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Créer un matériel</h1>
             <a href="{{ route('assets.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                Back to list
+                Retour à la liste
             </a>
         </div>
     </div>
@@ -42,20 +42,20 @@
                     
                     <!-- SECTION 1 : REQUIRED DETAILS -->
                     <div class="mb-2">
-                        <h2 class="text-lg font-bold text-gray-900">Materiel details</h2>
-                        <p class="text-sm text-gray-500 mt-1">Fields marked <span class="text-red-500">*</span> are required.</p>
+                        <h2 class="text-lg font-bold text-gray-900">Détails du matériel</h2>
+                        <p class="text-sm text-gray-500 mt-1">Les champs marqués d'un astérisque <span class="text-red-500">*</span> sont obligatoires.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         <div>
-                            <label for="inventory_code" class="block text-sm font-bold text-gray-900 mb-1">Code inventaire <span class="text-red-500">*</span></label>
+                            <label for="inventory_code" class="block text-sm font-bold text-gray-900 mb-1">Code d'inventaire <span class="text-red-500">*</span></label>
                             <input type="text" name="inventory_code" id="inventory_code" value="{{ old('inventory_code') }}" placeholder="Ex: 066/CRI/25" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                             @error('inventory_code') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
 
                         <!-- SELECT DYNAMIQUE : TYPE DE MATERIEL -->
                         <div>
-                            <label for="asset_type_id" class="block text-sm font-bold text-gray-900 mb-1">Type materiel <span class="text-red-500">*</span></label>
+                            <label for="asset_type_id" class="block text-sm font-bold text-gray-900 mb-1">Type de matériel <span class="text-red-500">*</span></label>
                             <!-- x-model lie ce select à la variable Alpine, @change déclenche le calcul des specs -->
                             <select name="asset_type_id" id="asset_type_id" x-model="selectedTypeId" @change="updateSchema()" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                                 <option value="" disabled>Sélectionner un type...</option>
@@ -63,7 +63,7 @@
                                     <option value="{{ $type->id }}">{{ $type->name }}</option>
                                 @endforeach
                             </select>
-                            <p class="mt-1 text-[11px] text-gray-400">Type defines category and technical specs.</p>
+                            <p class="mt-1 text-[11px] text-gray-400">Le type détermine la catégorie et les caractéristiques techniques du matériel.</p>
                             @error('asset_type_id') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
 
@@ -94,9 +94,9 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 2 : OPTIONAL -->
+                    <!-- SECTION 2 : Informations complémentaires -->
                     <div class="flex items-center mt-10 mb-6">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-4">Optional</span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-4">Informations complémentaires</span>
                         <div class="flex-grow border-t border-gray-100"></div>
                     </div>
 
@@ -106,31 +106,31 @@
                             <input type="text" name="brand" id="brand" value="{{ old('brand') }}" placeholder="Ex: HP, Dell" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for="model" class="block text-sm font-bold text-gray-900 mb-1">Modele</label>
+                            <label for="model" class="block text-sm font-bold text-gray-900 mb-1">Modèle</label>
                             <input type="text" name="model" id="model" value="{{ old('model') }}" placeholder="Ex: EliteBook 840" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for="serial_number" class="block text-sm font-bold text-gray-900 mb-1">Numero de serie</label>
+                            <label for="serial_number" class="block text-sm font-bold text-gray-900 mb-1">Numéro de série</label>
                             <input type="text" name="serial_number" id="serial_number" value="{{ old('serial_number') }}" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for="current_employee_id" class="block text-sm font-bold text-gray-900 mb-1">Affecte a (employe)</label>
+                            <label for="current_employee_id" class="block text-sm font-bold text-gray-900 mb-1">Affecté à (employe)</label>
                             <select name="current_employee_id" id="current_employee_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
-                                <option value="">Non affecte (En stock)</option>
+                                <option value="">Non affecté (En stock)</option>
                                 @foreach($employees as $employee)
                                     <option value="{{ $employee->id }}" {{ old('current_employee_id') == $employee->id ? 'selected' : '' }}>{{ $employee->full_name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="md:col-span-2">
-                            <label for="notes" class="block text-sm font-bold text-gray-900 mb-1">Notes</label>
+                            <label for="notes" class="block text-sm font-bold text-gray-900 mb-1">Observations</label>
                             <textarea name="notes" id="notes" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">{{ old('notes') }}</textarea>
                         </div>
                     </div>
 
                     <!-- SECTION 3 : SPECS (Totalement pilotée par la BDD via Alpine) -->
                     <div class="flex items-center mt-10 mb-2">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-4">Specs</span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-4">Caractéristiques techniques</span>
                         <div class="flex-grow border-t border-gray-100"></div>
                     </div>
                     
@@ -175,10 +175,10 @@
                 <!-- BOUTONS DE SOUMISSION -->
                 <div class="px-6 md:px-8 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 rounded-b-xl">
                     <a href="{{ route('assets.index') }}" class="px-6 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-100 transition shadow-sm">
-                        Cancel
+                        Annuler
                     </a>
                     <button type="submit" class="px-6 py-2.5 bg-green-700 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-green-800 transition shadow-sm">
-                        Create materiel
+                        Créer le matériel
                     </button>
                 </div>
             </div>

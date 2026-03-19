@@ -5,18 +5,18 @@
     <!-- HEADER & BREADCRUMB -->
     <div class="mb-6">
         <div class="text-sm text-gray-500 mb-2">
-            <span class="text-gray-400">Referentiels</span> 
+            <span class="text-gray-400">Référentiels </span> 
             <span class="mx-1">/</span> 
-            <span class="text-gray-500 font-medium">Categories tickets</span>
+            <span class="text-gray-500 font-medium">Catégories de tickets</span>
         </div>
         
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <h1 class="text-2xl font-bold text-gray-900">Categories tickets</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Catégories de tickets</h1>
             
             <!-- BOUTON ADD CATEGORY -->
             <div x-data="{ showCreateModal: false }">
                 <button @click="showCreateModal = true" class="inline-flex items-center px-4 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-800 shadow-sm transition w-full sm:w-auto justify-center">
-                    <span class="mr-2 text-lg leading-none">+</span> Add category
+                    <span class="mr-2 text-lg leading-none">+</span> Ajouter une catégorie
                 </button>
 
                 <!-- MODALE : ADD CATEGORY -->
@@ -28,22 +28,22 @@
                             <div x-show="showCreateModal" class="relative bg-white rounded-2xl text-left overflow-hidden shadow-xl sm:my-8 sm:max-w-lg w-full p-6">
                                 
                                 <div class="mb-5">
-                                    <h3 class="text-xl font-bold text-gray-900">Add category</h3>
-                                    <p class="text-sm text-gray-500 mt-1">Create a new category for tickets (e.g., Network, Hardware).</p>
+                                    <h3 class="text-xl font-bold text-gray-900">Ajouter une catégorie</h3>
+                                    <p class="text-sm text-gray-500 mt-1">Créer une nouvelle catégorie de tickets (par exemple : Réseau, Matériel).</p>
                                 </div>
                                 
                                 <form action="{{ route('ticket-categories.store') }}" method="POST">
                                     @csrf
                                     <div class="space-y-4 mb-6">
                                         <div>
-                                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Name *</label>
+                                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nom *</label>
                                             <input type="text" name="name" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 sm:text-sm">
                                         </div>
                                     </div>
                                     
                                     <div class="flex justify-end space-x-3">
-                                        <button type="button" @click="showCreateModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm">Cancel</button>
-                                        <button type="submit" class="px-6 py-2 bg-green-700 text-white rounded-lg text-sm font-bold hover:bg-green-800 transition shadow-sm">Create</button>
+                                        <button type="button" @click="showCreateModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm">Annuler</button>
+                                        <button type="submit" class="px-6 py-2 bg-green-700 text-white rounded-lg text-sm font-bold hover:bg-green-800 transition shadow-sm">Créer</button>
                                     </div>
                                 </form>
                             </div>
@@ -71,18 +71,18 @@
         <div class="p-5">
             <div class="flex items-center mb-4">
                 <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <h2 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Search</h2>
+                <h2 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Recherche</h2>
             </div>
             
             <form action="{{ route('ticket-categories.index') }}" method="GET" class="flex flex-col sm:flex-row gap-4 items-end">
                 <div class="w-full sm:w-1/2 md:w-1/3">
-                    <label class="block text-[11px] font-bold text-gray-500 mb-2">Name</label>
+                    <label class="block text-[11px] font-bold text-gray-500 mb-2">Nom</label>
                     <input type="text" name="name" value="{{ request('name') }}" placeholder="Ex: IT, Réseau..." class="w-full border-gray-300 rounded-lg text-sm focus:border-green-500 shadow-sm">
                 </div>
 
                 <div class="flex space-x-3 w-full sm:w-auto">
-                    <button type="submit" class="w-full sm:w-auto px-6 py-2 bg-green-700 text-white rounded-lg text-sm font-bold hover:bg-green-800 shadow-sm transition">Search</button>
-                    <a href="{{ route('ticket-categories.index') }}" class="w-full sm:w-auto px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 text-center shadow-sm transition">Reset</a>
+                    <button type="submit" class="w-full sm:w-auto px-6 py-2 bg-green-700 text-white rounded-lg text-sm font-bold hover:bg-green-800 shadow-sm transition">Recherche</button>
+                    <a href="{{ route('ticket-categories.index') }}" class="w-full sm:w-auto px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 text-center shadow-sm transition">Réinitialiser</a>
                 </div>
             </form>
         </div>
@@ -91,9 +91,9 @@
     <!-- TABLEAU DES CATÉGORIES -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
         <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-            <h2 class="text-lg font-bold text-gray-900">Ticket categories</h2>
+            <h2 class="text-lg font-bold text-gray-900">Catégories de tickets</h2>
             <div class="text-sm text-gray-500">
-                Showing {{ $categories->firstItem() ?? 0 }}-{{ $categories->lastItem() ?? 0 }} of {{ $categories->total() }}
+                Affichage de {{ $categories->firstItem() ?? 0 }}-{{ $categories->lastItem() ?? 0 }} sur {{ $categories->total() }}
             </div>
         </div>
 
@@ -101,7 +101,7 @@
             <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-100">
-                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Nom</th>
                         <th class="p-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                     </tr>
                 </thead>
@@ -113,8 +113,8 @@
                         <td class="p-4 text-sm text-gray-900">{{ $category->name }}</td>
                         
                         <td class="p-4 text-sm font-medium text-right space-x-3">
-                            <button @click="showEditModal = true" class="text-blue-600 hover:text-blue-800">Edit</button>
-                            <button @click="showDeleteModal = true" class="text-red-600 hover:text-red-800">Delete</button>
+                            <button @click="showEditModal = true" class="text-green-600 hover:text-green-800">Modifier</button>
+                            <button @click="showDeleteModal = true" class="text-red-600 hover:text-red-800">Supprimer</button>
 
                             <!-- MODALE EDIT -->
                             <template x-teleport="body">
@@ -124,20 +124,20 @@
                                         <div x-show="showEditModal" class="relative bg-white rounded-2xl overflow-hidden shadow-xl sm:my-8 sm:max-w-lg w-full p-6">
                                             
                                             <div class="mb-5">
-                                                <h3 class="text-xl font-bold text-gray-900">Edit category</h3>
+                                                <h3 class="text-xl font-bold text-gray-900">Modifier la catégorie</h3>
                                             </div>
                                             
                                             <form action="{{ route('ticket-categories.update', $category) }}" method="POST">
                                                 @csrf @method('PUT')
                                                 <div class="space-y-4 mb-6">
                                                     <div>
-                                                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Name *</label>
+                                                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nom *</label>
                                                         <input type="text" name="name" value="{{ $category->name }}" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 sm:text-sm">
                                                     </div>
                                                 </div>
                                                 <div class="flex justify-end space-x-3">
-                                                    <button type="button" @click="showEditModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm">Cancel</button>
-                                                    <button type="submit" class="px-6 py-2 bg-green-700 text-white rounded-lg text-sm font-bold hover:bg-green-800 transition shadow-sm">Save</button>
+                                                    <button type="button" @click="showEditModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm">Annuler</button>
+                                                    <button type="submit" class="px-6 py-2 bg-green-700 text-white rounded-lg text-sm font-bold hover:bg-green-800 transition shadow-sm">Enregistrer</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -154,12 +154,12 @@
                                             <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                                                 <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                             </div>
-                                            <h3 class="text-lg font-bold text-gray-900">Delete category</h3>
-                                            <p class="text-sm text-gray-500 mt-2 mb-6">Are you sure you want to delete <strong>{{ $category->name }}</strong>? This action cannot be undone.</p>
+                                            <h3 class="text-lg font-bold text-gray-900">Supprimer la catégorie</h3>
+                                            <p class="text-sm text-gray-500 mt-2 mb-6">Êtes-vous sûr de vouloir supprimer <strong>{{ $category->name }}</strong> ? Cette action ne peut pas être annulée.</p>
                                             <form action="{{ route('ticket-categories.destroy', $category) }}" method="POST" class="flex justify-center gap-3">
                                                 @csrf @method('DELETE')
-                                                <button type="button" @click="showDeleteModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 w-full hover:bg-gray-50">Cancel</button>
-                                                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold w-full hover:bg-red-700">Delete</button>
+                                                <button type="button" @click="showDeleteModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 w-full hover:bg-gray-50">Annuler</button>
+                                                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold w-full hover:bg-red-700">Supprimer</button>
                                             </form>
                                         </div>
                                     </div>
@@ -170,7 +170,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="2" class="p-6 text-center text-gray-500 text-sm">No ticket categories found.</td>
+                        <td colspan="2" class="p-6 text-center text-gray-500 text-sm">Aucune catégorie de tickets trouvée.</td>
                     </tr>
                     @endforelse
                 </tbody>

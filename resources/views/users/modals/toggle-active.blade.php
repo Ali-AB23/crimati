@@ -22,7 +22,7 @@
                 
                 <form action="{{ route('users.toggle', $targetUser) }}" method="POST" class="flex justify-center gap-3">
                     @csrf
-                    <button type="button" @click="showToggleModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 w-full hover:bg-gray-50">Cancel</button>
+                    <button type="button" @click="showToggleModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 w-full hover:bg-gray-50">Annuler</button>
                     
                     @if($targetUser->active)
                         <button type="submit" class="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-bold w-full hover:bg-orange-600">Désactiver</button>

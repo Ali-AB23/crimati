@@ -15,9 +15,9 @@
         <div class="text-sm text-gray-500 mb-2">
             <span class="text-gray-400">Import Excel</span> 
             <span class="mx-1">/</span> 
-            <span class="text-gray-400">Materiels</span>
+            <span class="text-gray-400">Matériels</span>
             <span class="mx-1">/</span> 
-            <span class="text-gray-900 font-medium">Resultats</span>
+            <span class="text-gray-900 font-medium">Résultats</span>
         </div>
         
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">

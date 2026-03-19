@@ -25,6 +25,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('login');
 });
+Route::fallback(function () {
+    return '<h1>errors.404</h1>';
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -52,9 +55,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Tickets (Limité à la consultation et création pour tout le monde)
     // Les règles fines (statut, assignation, due_at) se font dans TicketController
-    Route::resource('tickets', TicketController::class)->only(['index', 'create', 'store', 'show']);;
-    Route::post('tickets/{ticket}/comments', [TicketCommentController::class, 'store'])->name('ticket-comments.store');
-
+    Route::middleware(['role:ADMIN_IT,EMPLOYE'])->group(function () {
+        Route::resource('tickets', TicketController::class)->only(['index', 'create', 'store', 'show']);
+        Route::post('tickets/{ticket}/comments', [TicketCommentController::class, 'store'])->name('ticket-comments.store');
+    });
 
     // --- NOTIFICATIONS ---
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
@@ -110,6 +114,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('users', UserController::class);
 
         Route::post('users/{user}/toggle', [UserController::class, 'toggleActive'])->name('users.toggle');
+
 
 
         // Référentiels

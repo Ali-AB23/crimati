@@ -25,28 +25,28 @@
     <div x-data="{ showMoveModal: false, showDeleteModal: false }">
         <div class="mb-6">
             <div class="text-sm text-gray-500 mb-2">
-                <a href="{{ route('assets.index') }}" class="hover:underline">Materiels</a> 
+                <a href="{{ route('assets.index') }}" class="hover:underline">Matériels</a> 
                 <span class="mx-1">&gt;</span> 
                 <span class="text-gray-400">{{ $asset->inventory_code }}</span>
             </div>
             
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                <h1 class="text-2xl font-bold text-gray-900">Materiel {{ $asset->inventory_code }}</h1>
+                <h1 class="text-2xl font-bold text-gray-900">Matériel {{ $asset->inventory_code }}</h1>
                 
                 <div class="flex flex-wrap gap-2 sm:space-x-3">
-                    <a href="{{ route('assets.index') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">Back to list</a>
+                    <a href="{{ route('assets.index') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">Retour à la liste</a>
                     
                     @if($isAdminOrInv)
-                        <a href="{{ route('assets.edit', $asset) }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">Edit</a>
+                        <a href="{{ route('assets.edit', $asset) }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">Modifier</a>
                         
                         <!-- 1. BOUTON DEPLACER CONNECTÉ À ALPINE -->
                         <button type="button" @click="showMoveModal = true" class="px-4 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-800 transition">
-                            Deplacer
+                            Déplacer
                         </button>
                         
                         <!-- 2. BOUTON DELETE CONNECTÉ À ALPINE (Plus de <form> direct ici) -->
                         <button type="button" @click="showDeleteModal = true" class="px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition">
-                            Delete
+                            Supprimer
                         </button>
                     @endif
                 </div>
@@ -57,7 +57,7 @@
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Code Inventaire</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Code d'inventaire</p>
                     <p class="text-sm font-bold text-gray-900">{{ $asset->inventory_code }}</p>
                 </div>
                 <div>
@@ -65,7 +65,7 @@
                     <p class="text-sm font-bold text-gray-900">{{ optional($asset->type)->name ?? 'N/A' }}</p>
                 </div>
                 <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Categorie</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Catégorie</p>
                     <p class="text-sm font-bold text-gray-900">{{ optional(optional($asset->type)->category)->name ?? 'N/A' }}</p>
                 </div>
                 <div>
@@ -79,7 +79,7 @@
                     <p class="text-sm font-bold text-gray-900">{{ optional($asset->currentLocation)->name ?? 'N/A' }}</p>
                 </div>
                 <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Affecte A</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Affecté à</p>
                     <p class="text-sm font-bold text-gray-900">{{ optional($asset->currentEmployee)->full_name ?? 'Non affecté' }}</p>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                 <!-- INFORMATIONS GÉNÉRALES -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                     <div class="p-5 border-b border-gray-100">
-                        <h2 class="text-lg font-bold text-gray-900">General information</h2>
+                        <h2 class="text-lg font-bold text-gray-900">Informations générales</h2>
                     </div>
                     <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
@@ -102,15 +102,15 @@
                             <p class="text-sm text-gray-900">{{ $asset->brand ?? '-' }}</p>
                         </div>
                         <div>
-                            <p class="text-[11px] font-bold text-gray-500 mb-1">Modele</p>
+                            <p class="text-[11px] font-bold text-gray-500 mb-1">Modèle</p>
                             <p class="text-sm text-gray-900">{{ $asset->model ?? '-' }}</p>
                         </div>
                         <div>
-                            <p class="text-[11px] font-bold text-gray-500 mb-1">Numero de serie</p>
+                            <p class="text-[11px] font-bold text-gray-500 mb-1">Numéro de série</p>
                             <p class="text-sm text-gray-900">{{ $asset->serial_number ?? '-' }}</p>
                         </div>
                         <div>
-                            <p class="text-[11px] font-bold text-gray-500 mb-1">Notes</p>
+                            <p class="text-[11px] font-bold text-gray-500 mb-1">Observations</p>
                             <p class="text-sm text-gray-600 leading-relaxed">{{ $asset->notes ?? '-' }}</p>
                         </div>
                     </div>
@@ -119,14 +119,14 @@
                 <!-- SPECS (JSON Dynamique) -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                     <div class="p-5 border-b border-gray-100">
-                        <h2 class="text-lg font-bold text-gray-900">Specs</h2>
-                        <p class="text-xs text-gray-400 mt-1">Technical attributes (from asset specs).</p>
+                        <h2 class="text-lg font-bold text-gray-900">Caractéristiques techniques</h2>
+                        <p class="text-xs text-gray-400 mt-1">Attributs techniques liés à ce type de matériel.</p>
                     </div>
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-100">
                                 <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider w-1/3">Spec</th>
-                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Value</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Valuer</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -150,18 +150,18 @@
                 <!-- HISTORIQUE DES MOUVEMENTS -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                     <div class="p-5 border-b border-gray-100">
-                        <h2 class="text-lg font-bold text-gray-900">Recent movements</h2>
+                        <h2 class="text-lg font-bold text-gray-900">Historique des mouvements</h2>
                     </div>
                     <div class="overflow-x-auto w-full">
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
                                 <tr class="bg-gray-50 border-b border-gray-100">
-                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Moved At</th>
-                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Type</th>
-                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">From Loc</th>
-                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">To Loc</th>
-                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">From Emp</th>
-                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">To Emp</th>
+                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Date du mouvement</th>
+                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Nature</th>
+                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Lieu d'origine</th>
+                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Nouveau lieu</th>
+                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Ancien affectataire</th>
+                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Nouvel affectataire</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -187,14 +187,14 @@
                 <!-- TICKETS LIÉS -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                     <div class="p-5 border-b border-gray-100">
-                        <h2 class="text-lg font-bold text-gray-900">Linked tickets</h2>
+                        <h2 class="text-lg font-bold text-gray-900">Réclamations liées</h2>
                     </div>
                     <div class="overflow-x-auto w-full">
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
                                 <tr class="bg-gray-50 border-b border-gray-100">
-                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Reference</th>
-                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Priorite</th>
+                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Référence</th>
+                                    <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Priorité</th>
                                     <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Statut</th>
                                     <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Date Limite</th>
                                     <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Actions</th>
@@ -251,11 +251,11 @@
             @if($isAdminOrInv)
             <div class="space-y-6">
                 
-                <!-- ASSIGNMENT -->
+                <!-- Affectation actuelle -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                     <div class="flex items-center space-x-2 mb-6">
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <h2 class="text-lg font-bold text-gray-900">Assignment</h2>
+                        <h2 class="text-lg font-bold text-gray-900">Affectation actuelle</h2>
                     </div>
 
                     <div class="space-y-5">
@@ -282,7 +282,7 @@
                                 </div>
                             @endif
                             <div>
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Employe</p>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Employé(e)</p>
                                 <p class="text-sm font-bold text-gray-900">{{ optional($asset->currentEmployee)->full_name ?? 'Non affecté' }}</p>
                             </div>
                         </div>

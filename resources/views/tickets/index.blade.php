@@ -12,16 +12,16 @@
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-2xl font-bold text-gray-900">Reclamations</h1>
         <div class="flex space-x-3">
-            <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">View dashboard</a>
+            <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">Voir le tableau de bord</a>
             
-            <a href="{{ route('tickets.create') }}" class="px-4 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-800 shadow-sm transition">Nouveau Ticket</a>
+            <a href="{{ route('tickets.create') }}" class="px-4 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-800 shadow-sm transition">Nouvelle réclamation</a>
         </div>
     </div>
 
     <!-- ZONE DE RECHERCHE ET FILTRES -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6">
         <div class="p-6">
-            <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4">Search and filters</h2>
+            <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4">Recherche et filtres</h2>
             
             <form action="{{ route('tickets.index') }}" method="GET">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -34,7 +34,7 @@
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Statut</label>
                         <select name="status" class="w-full border-gray-300 rounded-lg text-sm text-gray-600 focus:border-green-500 focus:ring-green-500 shadow-sm">
-                            <option value="">All</option>
+                            <option value="">Tous</option>
                             @foreach($statuses as $status)
                                 <option value="{{ $status->value }}" {{ request('status') == $status->value ? 'selected' : '' }}>
                                     {{ str_replace('_', ' ', ucfirst($status->value)) }}
@@ -56,11 +56,11 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Late</label>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">En retard</label>
                         <select name="late" class="w-full border-gray-300 rounded-lg text-sm text-gray-600 focus:border-green-500 focus:ring-green-500 shadow-sm">
                             <option value="">All</option>
-                            <option value="yes" {{ request('late') == 'yes' ? 'selected' : '' }}>Yes (En retard)</option>
-                            <option value="no" {{ request('late') == 'no' ? 'selected' : '' }}>No (À temps)</option>
+                            <option value="yes" {{ request('late') == 'yes' ? 'selected' : '' }}>Oui (En retard)</option>
+                            <option value="no" {{ request('late') == 'no' ? 'selected' : '' }}>Non (À temps)</option>
                         </select>
                     </div>
 
@@ -81,10 +81,10 @@
 
                 <div class="mt-5 flex space-x-3">
                     <button type="submit" class="px-6 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-800 shadow-sm transition">
-                        Search
+                        Rechercher
                     </button>
                     <a href="{{ route('tickets.index') }}" class="px-6 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">
-                        Reset
+                        Réinitialiser
                     </a>
                 </div>
             </form>
@@ -95,8 +95,8 @@
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
         <div class="p-5 border-b border-gray-100 flex justify-between items-center">
             <div>
-                <h2 class="text-lg font-bold text-gray-900 uppercase tracking-wider">Tickets List</h2>
-                <p class="text-sm text-gray-500">Showing {{ $tickets->firstItem() ?? 0 }}-{{ $tickets->lastItem() ?? 0 }} of {{ $tickets->total() }}</p>
+                <h2 class="text-lg font-bold text-gray-900 uppercase tracking-wider">Liste des réclamations</h2>
+                <p class="text-sm text-gray-500">Affichage de {{ $tickets->firstItem() ?? 0 }}-{{ $tickets->lastItem() ?? 0 }} sur {{ $tickets->total() }}</p>
             </div>
         </div>
 
@@ -104,13 +104,13 @@
             <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-100">
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Reference</th>
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Materiel</th>
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Priorite</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Référence</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Matériel</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Priorité</th>
                         <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Statut</th>
                         <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Date Limite</th>
                         <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Demandeur</th>
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Assigne A</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Assigné à</th>
                         <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                     </tr>
                 </thead>

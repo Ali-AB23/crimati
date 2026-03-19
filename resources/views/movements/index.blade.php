@@ -7,7 +7,7 @@
         <h1 class="text-2xl font-bold text-gray-900">Mouvements</h1>
         <a href="{{ route('assets.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">
             <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-            View materiels
+            Voir les matériels
         </a>
     </div>
 
@@ -18,7 +18,7 @@
                 
                 <!-- Filtre : Asset Code -->
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Asset Code</label>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Code du matériel</label>
                     <input type="text" name="asset_code" value="{{ request('asset_code') }}" placeholder="e.g. 066/CRI/25" class="w-full border-gray-300 rounded-lg text-sm focus:border-green-500 focus:ring-green-500 shadow-sm">
                 </div>
 
@@ -26,7 +26,7 @@
                 <div>
                     <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Type</label>
                     <select name="type" class="w-full border-gray-300 rounded-lg text-sm text-gray-600 focus:border-green-500 focus:ring-green-500 shadow-sm">
-                        <option value="">All types</option>
+                        <option value="">Tous les types</option>
                         @foreach($types as $type)
                             <option value="{{ $type->value }}" {{ request('type') == $type->value ? 'selected' : '' }}>
                                 {{ ucfirst(strtolower($type->value)) }}
@@ -37,9 +37,9 @@
 
                 <!-- Filtre : From Location -->
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">From Location</label>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Depuis l'emplacement</label>
                     <select name="from_location_id" class="w-full border-gray-300 rounded-lg text-sm text-gray-600 focus:border-green-500 focus:ring-green-500 shadow-sm">
-                        <option value="">Select location</option>
+                        <option value="">Choisir un emplacement</option>
                         @foreach($locations as $loc)
                             <option value="{{ $loc->id }}" {{ request('from_location_id') == $loc->id ? 'selected' : '' }}>{{ $loc->name }}</option>
                         @endforeach
@@ -48,9 +48,9 @@
 
                 <!-- Filtre : To Location -->
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">To Location</label>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Depuis l'emplacement</label>
                     <select name="to_location_id" class="w-full border-gray-300 rounded-lg text-sm text-gray-600 focus:border-green-500 focus:ring-green-500 shadow-sm">
-                        <option value="">Select location</option>
+                        <option value="">Choisir l’emplacement</option>
                         @foreach($locations as $loc)
                             <option value="{{ $loc->id }}" {{ request('to_location_id') == $loc->id ? 'selected' : '' }}>{{ $loc->name }}</option>
                         @endforeach
@@ -59,8 +59,8 @@
 
                 <!-- Filtre : Moved By -->
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Moved By</label>
-                    <input type="text" name="moved_by_name" value="{{ request('moved_by_name') }}" placeholder="Search employee" class="w-full border-gray-300 rounded-lg text-sm focus:border-green-500 focus:ring-green-500 shadow-sm">
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Déplacé par</label>
+                    <input type="text" name="moved_by_name" value="{{ request('moved_by_name') }}" placeholder="Rechercher un employé" class="w-full border-gray-300 rounded-lg text-sm focus:border-green-500 focus:ring-green-500 shadow-sm">
                 </div>
 
             </div>
@@ -68,11 +68,11 @@
             <!-- Boutons du filtre -->
             <div class="mt-5 flex justify-end space-x-3 border-t border-gray-100 pt-4">
                 <a href="{{ route('movements.index') }}" class="px-6 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition">
-                    Reset Filters
+                    Réinitialiser les filtres
                 </a>
                 <button type="submit" class="inline-flex items-center px-6 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-green-800 shadow-sm transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    Search Movements
+                    Rechercher des mouvements
                 </button>
             </div>
         </form>
@@ -84,15 +84,15 @@
             <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-100">
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Moved At</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Déplacé le</th>
                         <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Type</th>
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Asset</th>
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">From Location</th>
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">To Location</th>
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">From Employee</th>
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">To Employee</th>
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Moved By</th>
-                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Note</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Matériel</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Depuis l'emplacement</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Vers l'emplacement</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">De l'employé</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">À l'employé</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Déplacé par</th>
+                        <th class="p-5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Remarque</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">

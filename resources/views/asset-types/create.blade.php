@@ -5,11 +5,11 @@
     <!-- BREADCRUMB & HEADER -->
     <div class="mb-6">
         <div class="text-sm text-gray-500 mb-2">
-            <span class="text-gray-400">Referentiels</span> 
+            <span class="text-gray-400">Référentiels</span> 
             <span class="mx-1">/</span> 
             <a href="{{ route('asset-types.index') }}" class="hover:underline text-gray-500">Types materiel</a>
             <span class="mx-1">/</span> 
-            <span class="text-gray-900 font-medium">New</span>
+            <span class="text-gray-900 font-medium">Nouveau</span>
         </div>
         
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -17,7 +17,7 @@
             
             <a href="{{ route('asset-types.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                Back to list
+                Retour à la liste
             </a>
         </div>
     </div>
@@ -84,16 +84,16 @@
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
                 <div class="p-6 md:p-8 flex-1">
                     
-                    <h2 class="text-lg font-bold text-gray-900 mb-6">Type details</h2>
+                    <h2 class="text-lg font-bold text-gray-900 mb-6">Détails du type</h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                         <div>
-                            <label class="block text-sm font-bold text-gray-900 mb-1">Name <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-bold text-gray-900 mb-1">Nom <span class="text-red-500">*</span></label>
                             <input type="text" name="name" x-model="name" placeholder="Ex: Ordinateur Portable" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 sm:text-sm">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold text-gray-900 mb-1">Categorie parent <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-bold text-gray-900 mb-1">Catégorie parente <span class="text-red-500">*</span></label>
                             <select name="asset_category_id" x-model="categoryId" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 sm:text-sm">
                                 <option value="" disabled>Sélectionner une catégorie...</option>
                                 @foreach($categories as $category)
@@ -111,10 +111,10 @@
                 <!-- BOUTONS DE SOUMISSION -->
                 <div class="px-6 md:px-8 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 rounded-b-xl">
                     <a href="{{ route('asset-types.index') }}" class="px-6 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-100 transition shadow-sm">
-                        Cancel
+                        Annuler
                     </a>
                     <button type="submit" class="px-6 py-2.5 bg-green-700 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-green-800 transition shadow-sm">
-                        Save type
+                        Enregistrer le type
                     </button>
                 </div>
             </div>

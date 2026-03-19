@@ -9,20 +9,20 @@
         </div>
         
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <h1 class="text-2xl font-bold text-gray-900">Notification inbox</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Centre de notifications</h1>
             
             <div class="flex gap-3">
                 <form action="{{ route('notifications.markAllRead') }}" method="POST">
                     @csrf
                     <button type="submit" class="px-4 py-2 bg-green-700 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-green-800 shadow-sm transition">
-                        Mark all read
+                        Tout marquer comme lu
                     </button>
                 </form>
                 <form action="{{ route('notifications.clearRead') }}" method="POST">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition">
-                        Clear read
+                        Purger les lues
                     </button>
                 </form>
             </div>
@@ -45,18 +45,18 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search tickets, assets, keywords" class="pl-10 w-full border-gray-100 bg-gray-50 rounded-lg text-sm focus:border-green-500 focus:ring-green-500" onchange="document.getElementById('filter-form').submit();">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher des tickets, matériels, mots-clés..." class="pl-10 w-full border-gray-100 bg-gray-50 rounded-lg text-sm focus:border-green-500 focus:ring-green-500" onchange="document.getElementById('filter-form').submit();">
             </div>
 
             <!-- Boutons de filtres (Pills) -->
             @php $currentFilter = request('filter', 'all'); @endphp
             <input type="hidden" name="filter" id="filter-input" value="{{ $currentFilter }}">
             <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                <button type="button" onclick="document.getElementById('filter-input').value='all'; document.getElementById('filter-form').submit();" class="px-4 py-1.5 rounded-full text-xs font-bold transition {{ $currentFilter == 'all' ? 'bg-green-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50' }}">All</button>
-                <button type="button" onclick="document.getElementById('filter-input').value='unread'; document.getElementById('filter-form').submit();" class="px-4 py-1.5 rounded-full text-xs font-bold transition {{ $currentFilter == 'unread' ? 'bg-green-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50' }}">Unread</button>
-                <button type="button" onclick="document.getElementById('filter-input').value='tickets'; document.getElementById('filter-form').submit();" class="px-4 py-1.5 rounded-full text-xs font-bold transition {{ $currentFilter == 'tickets' ? 'bg-green-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50' }}">Tickets</button>
-                <button type="button" onclick="document.getElementById('filter-input').value='assets'; document.getElementById('filter-form').submit();" class="px-4 py-1.5 rounded-full text-xs font-bold transition {{ $currentFilter == 'assets' ? 'bg-green-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50' }}">Assets</button>
-                <button type="button" onclick="document.getElementById('filter-input').value='imports'; document.getElementById('filter-form').submit();" class="px-4 py-1.5 rounded-full text-xs font-bold transition {{ $currentFilter == 'imports' ? 'bg-green-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50' }}">Imports</button>
+                <button type="button" onclick="document.getElementById('filter-input').value='all'; document.getElementById('filter-form').submit();" class="px-4 py-1.5 rounded-full text-xs font-bold transition {{ $currentFilter == 'all' ? 'bg-green-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50' }}">Toutes</button>
+                <button type="button" onclick="document.getElementById('filter-input').value='unread'; document.getElementById('filter-form').submit();" class="px-4 py-1.5 rounded-full text-xs font-bold transition {{ $currentFilter == 'unread' ? 'bg-green-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50' }}">Non lues</button>
+                <button type="button" onclick="document.getElementById('filter-input').value='tickets'; document.getElementById('filter-form').submit();" class="px-4 py-1.5 rounded-full text-xs font-bold transition {{ $currentFilter == 'tickets' ? 'bg-green-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50' }}">Réclamations</button>
+                <button type="button" onclick="document.getElementById('filter-input').value='assets'; document.getElementById('filter-form').submit();" class="px-4 py-1.5 rounded-full text-xs font-bold transition {{ $currentFilter == 'assets' ? 'bg-green-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50' }}">Matériels</button>
+                <button type="button" onclick="document.getElementById('filter-input').value='imports'; document.getElementById('filter-form').submit();" class="px-4 py-1.5 rounded-full text-xs font-bold transition {{ $currentFilter == 'imports' ? 'bg-green-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50' }}">Imports Excel</button>
             </div>
 
             <!-- Séparateur vertical -->
@@ -65,8 +65,8 @@
             <!-- Tri -->
             <div class="w-full md:w-auto">
                 <select name="sort" class="w-full border-transparent bg-transparent text-sm font-bold text-gray-700 focus:ring-0 cursor-pointer" onchange="document.getElementById('filter-form').submit();">
-                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Sort: Newest</option>
-                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Sort: Oldest</option>
+                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Tri : Plus récentes</option>
+                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Tri : Plus anciennes</option>
                 </select>
             </div>
         </form>
@@ -116,9 +116,9 @@
                 <div class="flex flex-col items-end shrink-0 gap-2">
                     <span class="text-xs font-medium text-gray-400">{{ $notif->created_at->diffForHumans(null, true, true) }}</span>
                     @if($isUnread)
-                        <span class="px-2 py-0.5 border border-green-500 text-green-600 bg-white rounded text-[10px] font-bold uppercase tracking-wider">Unread</span>
+                        <span class="px-2 py-0.5 border border-green-500 text-green-600 bg-white rounded text-[10px] font-bold uppercase tracking-wider">Non lue</span>
                     @else
-                        <span class="px-2 py-0.5 border border-gray-300 text-gray-500 bg-gray-50 rounded text-[10px] font-bold uppercase tracking-wider">Read</span>
+                        <span class="px-2 py-0.5 border border-gray-300 text-gray-500 bg-gray-50 rounded text-[10px] font-bold uppercase tracking-wider">Lue</span>
                     @endif
                 </div>
 
