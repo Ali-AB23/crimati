@@ -10,12 +10,22 @@
        class="fixed inset-y-0 left-0 z-30 bg-white border-r border-gray-200 flex flex-col h-full shrink-0 transition-all duration-300 ease-in-out lg:static lg:translate-x-0">
     
     <!-- LOGO ET BOUTON FERMER (Mobile) -->
+    <!-- LOGO ET BOUTON FERMER (Mobile) -->
     <div class="h-20 flex items-center px-6" :class="sidebarMini ? 'justify-center px-0' : 'justify-between'">
-        <!-- C le logo initial quand réduit, CRIMATI quand ouvert -->
-        <span x-show="!sidebarMini" class="text-2xl font-extrabold text-gray-900 tracking-tight transition-opacity duration-300">CRIMATI</span>
-        <span x-show="sidebarMini" style="display: none;" class="text-2xl font-extrabold text-green-700 bg-green-50 p-2 rounded-lg tracking-tight">C</span>
         
-        <button @click="sidebarOpen = false" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
+        <!-- Le conteneur du Logo + Texte (Cliquable vers le dashboard) -->
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 overflow-hidden">
+            <!-- LE LOGO : Toujours visible (h-8 w-8 le garde bien carré, object-contain empêche la déformation) -->
+            <img src="{{ asset('images/logo.jpg') }}" alt="Logo" class="h-8 w-8 shrink-0 object-contain">
+            
+            <!-- LE TEXTE : Disparaît quand la sidebar se réduit -->
+            <span x-show="!sidebarMini" class="text-2xl font-extrabold text-gray-900 tracking-tight transition-opacity duration-300 whitespace-nowrap">
+                CRIMATI
+            </span>
+        </a>
+        
+        <!-- Bouton fermer sur mobile -->
+        <button @click="sidebarOpen = false" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none shrink-0">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
     </div>
