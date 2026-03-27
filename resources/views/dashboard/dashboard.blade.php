@@ -244,7 +244,8 @@
         </div>
 
         <!-- 📊 LES GRAPHIQUES (Pour Admin & Inventoriste) -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mb-8">
             <!-- GRAPHIQUE 1 -->
